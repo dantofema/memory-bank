@@ -1,5 +1,18 @@
 # DECISIONS — LasParser
 
+**Formato ADR aplicado:** cada decisión debe seguir el esquema:
+
+## [YYYY-MM-DD] Título corto
+
+* Problema:
+* Opciones evaluadas:
+* Decisión:
+* Justificación:
+* Estado: (Propuesto | Activo | Deprecado)
+* Autor: <nombre>
+
+---
+
 Autor: Equipo LasParser
 Fecha creada: 2025-11-25
 Propósito: Registrar decisiones clave priorizadas (P0/P1/P2) para el desarrollo del módulo `LasParser`.
