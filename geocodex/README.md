@@ -109,3 +109,17 @@ Metadatos
 **Última actualización:** 26/11/2025
 
 ---
+
+## Estructura del proyecto (documentación)
+
+Este repositorio contiene solo la documentación y planificación del módulo LasParser según la guía `guide.md` del Memory Bank. No contiene código implementado en la rama principal durante la fase de planificación.
+
+Carpetas importantes:
+- `architecture/` — decisiones arquitectónicas y contratos (ver `decisions.md`, `modules.md`, `infrastructure.md`, `lasparser_plan.md`).
+- `flows/` — flujos funcionales críticos (`upload.md`, `ingestion_pipeline.md`).
+- `tickets/` — tickets por sprint y entregables (`sprint_1_mvp.md`, `sprint_2_ingest.md`, `sprint_3_parser.md`).
+- `knowledge/` — glosario y convenciones (`glossary.md`).
+
+Reglas operativas
+- No agregar código en esta rama: las implementaciones se harán en ramas de feature bajo `Modules/` y con PR vinculados a los tickets.
+- Storage/queue por ambiente: `local` => local/disk + database queue; staging/prod => S3 + redis.
