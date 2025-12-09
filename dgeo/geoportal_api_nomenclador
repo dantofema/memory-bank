@@ -1,0 +1,245 @@
+# Geoportal API - Nomenclador y Unidades Geoestadísticas
+
+**Versión:** v1  
+**Base URL:** `http://localhost/api/v1` (desarrollo)  
+**Autenticación:** Bearer Token (Sanctum)
+
+---
+
+## 🔐 Autenticación
+
+### Login - Obtener Token
+
+**Endpoint:** `POST /api/v1/login`
+
+```bash
+curl -X POST http://localhost/api/v1/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email": "app@example.test", "password": "password"}'
+```
+
+**Response (200 OK):**
+```json
+{"token": "eyJ0eXAiOiJKV1QiLCJhbGc..."}
+```
+
+**Uso en headers:**
+```
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc...
+```
+
+---
+
+## 🗺️ Endpoint 1: Geostatistical Units
+
+Obtener unidades estadísticas con geometría GeoJSON.
+
+**Endpoint:** `GET /api/v1/geostatistical-unit/{type}/{id}`
+
+### Parámetros
+
+| Parámetro | Tipo    | Requerido | Valores Válidos                                                           |
+|-----------|---------|-----------|---------------------------------------------------------------------------|
+| `type`    | string  | Sí        | `jurisdiction`, `department`, `locality`, `entity`, `spot`, `agglomerate` |
+| `id`      | integer | Sí        | > 0                                                                       |
+
+### Tipos de Unidades y Respuestas
+
+#### Jurisdiction (Jurisdicción)
+- `jurisdiction_code`, `jurisdiction_name`
+- Geometría: Polygon
+
+#### Department (Departamento)
+- `department_code`, `department_name`
+- Incluye información de jurisdicción superior
+- Geometría: Polygon
+
+#### Locality (Localidad)
+- `locality_code`, `locality_name`, `locality_type`
+- `agglomerate_code` (asociado)
+- Geometría: Polygon
+
+#### Entity (Entidad)
+- `entity_code`, `entity_name`
+- Incluye localidad y departamento
+- Geometría: Polygon
+
+#### Spot (Punto)
+- `spot_code`, `spot_name`
+- Geometría: Point [longitud, latitud]
+
+#### Agglomerate (Aglomerado)
+- `agglomerate_code`, `agglomerate_name`
+- Geometría: Polygon
+
+### Ejemplo cURL
+```bash
+curl -X GET \
+  'http://localhost/api/v1/geostatistical-unit/jurisdiction/1' \
+  -H 'Authorization: Bearer YOUR_TOKEN' \
+  -H 'Accept: application/json'
+```
+
+### Respuesta (200 OK)
+```json
+{
+    "data": {
+        "id": 1,
+        "fid": 101,
+        "geoserver_id": "101",
+        "jurisdiction_code": "CPR001",
+        "jurisdiction_name": "Provincia de Buenos Aires",
+        "the_geom": {
+            "type": "Polygon|Point|LineString",
+            "coordinates": [...]
+        },
+        "created_at": "2025-01-01T12:00:00Z",
+        "updated_at": "2025-01-01T12:00:00Z"
+    }
+}
+```
+
+### Códigos de Error
+- **200**: OK
+- **401**: Unauthorized (token inválido/expirado)
+- **422**: Unprocessable Entity (type inválido o ID no existe)
+- **500**: Server Error
+
+---
+
+## 📋 Endpoint 2: Nomenclador Unities
+
+Listar unidades del nomenclador (catálogo) con búsqueda y paginación.
+
+**Endpoint:** `GET /api/v1/nomenclador-unities`
+
+### Parámetros Query
+
+| Parámetro  | Tipo    | Default | Descripción                          |
+|------------|---------|---------|--------------------------------------|
+| `search`   | string  | —       | Búsqueda por nombre/código (case-insensitive) |
+| `per_page` | integer | 10      | Items por página (máximo: 100)      |
+| `page`     | integer | 1       | Número de página                    |
+
+### Ejemplos cURL
+
+```bash
+# Sin filtros
+curl -X GET 'http://localhost/api/v1/nomenclador-unities' \
+  -H 'Authorization: Bearer YOUR_TOKEN' \
+  -H 'Accept: application/json'
+
+# Con búsqueda
+curl -X GET 'http://localhost/api/v1/nomenclador-unities?search=provincia' \
+  -H 'Authorization: Bearer YOUR_TOKEN' \
+  -H 'Accept: application/json'
+
+# Con paginación
+curl -X GET 'http://localhost/api/v1/nomenclador-unities?search=Buenos&page=1&per_page=5' \
+  -H 'Authorization: Bearer YOUR_TOKEN' \
+  -H 'Accept: application/json'
+```
+
+### JavaScript - Axios (Recomendado)
+
+```javascript
+import axios from 'axios';
+
+const token = localStorage.getItem('auth_token');
+const apiClient = axios.create({
+    baseURL: 'http://localhost/api/v1',
+    headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json'
+    }
+});
+
+// Sin filtros
+const response = await apiClient.get('/nomenclador-unities');
+
+// Con búsqueda y paginación
+const response = await apiClient.get('/nomenclador-unities', {
+    params: {
+        search: 'Buenos Aires',
+        page: 1,
+        per_page: 5
+    }
+});
+
+const {data, meta, links} = response.data;
+```
+
+### Respuesta (200 OK)
+
+```json
+{
+    "data": [
+        {
+            "type": "jurisdiction|department|locality|entity|spot|agglomerate",
+            "name": "Nombre de la Unidad",
+            "code": "COD001",
+            "model_id": 1,
+            "position": 1
+        }
+    ],
+    "meta": {
+        "current_page": 1,
+        "from": 1,
+        "last_page": 10,
+        "per_page": 10,
+        "to": 10,
+        "total": 100
+    },
+    "links": {
+        "first": "http://localhost/api/v1/nomenclador-unities?page=1",
+        "last": "http://localhost/api/v1/nomenclador-unities?page=10",
+        "next": "http://localhost/api/v1/nomenclador-unities?page=2",
+        "prev": null
+    }
+}
+```
+
+---
+
+## 🔒 CORS y Seguridad
+
+Dominios permitidos:
+- `localhost:5174` (frontend development)
+- `localhost:3000`
+- `127.0.0.1:8000`
+
+Headers recomendados:
+```javascript
+const headers = {
+    'Authorization': `Bearer ${token}`,
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
+};
+```
+
+---
+
+## 🆘 Troubleshooting
+
+### 401 Unauthorized
+- Verificar header `Authorization: Bearer {token}`
+- Token debe estar presente y no expirado
+
+### 422 Unprocessable Entity
+- Type válidos: jurisdiction, department, locality, entity, spot, agglomerate
+- Verificar que el ID existe
+
+### Connection Refused
+```bash
+./vendor/bin/sail up -d
+```
+
+---
+
+## Notas de Integración Frontend
+
+1. **Almacenar Token:** Guardar en localStorage tras login
+2. **Renovar Token:** Si expira, realizar nuevo login
+3. **Búsqueda:** Case-insensitive, soporta acentos
+4. **Paginación:** Usar links.next/prev para navegación
+5. **Geometría:** GeoJSON estándar, compatible con Leaflet/Mapbox
