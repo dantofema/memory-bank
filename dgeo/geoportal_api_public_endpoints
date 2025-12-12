@@ -1,0 +1,95 @@
+# Endpoints Públicos del Módulo Geoportal
+
+## Resumen
+Se convirtieron dos endpoints del módulo Geoportal de autenticados (Sanctum) a públicos con rate limiting, para permitir acceso desde el frontend `nomenclador` sin autenticación.
+
+## Endpoints Públicos
+
+### 1. Listar Unidades del Nomenclador
+- **Ruta**: `GET /api/v1/nomenclador-unities`
+- **Nombre**: `nomenclador-unities.index`
+- **Rate Limiting**: 60 peticiones por minuto
+- **Parámetros Query**:
+  - `search` (opcional): Filtro de búsqueda
+  - `per_page` (opcional): Cantidad de resultados (default: 10)
+
+### 2. Obtener Unidad Geoestadística
+- **Ruta**: `GET /api/v1/geostatistical-unit/{type}/{id}`
+- **Nombre**: `geostatistical-unit.show`
+- **Rate Limiting**: 60 peticiones por minuto
+- **Parámetros URL**:
+  - `type`: Tipo de unidad (jurisdiction, department, locality, spot, entity, agglomerate)
+  - `id`: ID de la unidad
+
+## Configuración CORS
+
+La configuración CORS en `config/cors.php` está configurada con:
+- `'allowed_origins' => ['*']` - Permite todos los orígenes
+- `'allowed_methods' => ['*']` - Permite todos los métodos HTTP
+- `'paths' => ['api/*']` - Aplica a todas las rutas de API
+
+**IMPORTANTE**: Esta configuración es necesaria para que el frontend `nomenclador` (que corre en un dominio diferente) pueda hacer peticiones cross-origin a estos endpoints públicos.
+
+## Archivos Modificados
+
+### 1. Rutas (`Modules/Geoportal/routes/api.php`)
+- Cambio de `Route::middleware(['auth:sanctum'])` a `Route::middleware(['throttle:60,1'])`
+- Mantiene el prefijo `v1` y los nombres de rutas existentes
+
+### 2. Tests
+- **NomencladorUnityControllerTest**: Eliminado test de autenticación y todas las referencias a `Sanctum::actingAs()`
+- **GetGeostatisticalUnitControllerTest**: Eliminado test de autenticación y todas las referencias a `Sanctum::actingAs()`
+- Nuevo test: `'it returns 200 for public access'` en ambos controladores
+
+### 3. Archivos Bruno (7 archivos)
+Todos los archivos en `bruno/Geoportal/` fueron actualizados:
+- `List Nomenclador Unities.bru`
+- `Get Geostatistical Unit - Jurisdiction.bru`
+- `Get Geostatistical Unit - Spot.bru`
+- `Get Geostatistical Unit - Agglomerate.bru`
+- `Get Geostatistical Unit - Department.bru`
+- `Get Geostatistical Unit - Entity.bru`
+- `Get Geostatistical Unit - Locality.bru`
+
+Cambios aplicados:
+- `auth: bearer` → `auth: none`
+- Eliminada sección `auth:bearer { token: {{auth_token}} }`
+- Eliminada documentación sobre autenticación Sanctum
+- Añadida nota "Endpoint público" en la documentación
+
+## Validación
+
+Tests ejecutados exitosamente:
+- ✅ `NomencladorUnityControllerTest`: 5 tests, 12 aserciones
+- ✅ `GetGeostatisticalUnitControllerTest`: 6 tests, 45 aserciones
+- ✅ `Pint`: 1 archivo corregido automáticamente
+
+## Seguridad
+
+### Rate Limiting
+- Ambos endpoints tienen protección contra abuso con throttling de 60 peticiones por minuto
+- Similar al enfoque usado en `/api/v1/auth`
+
+### Consideraciones
+- Los endpoints exponen datos de lectura únicamente (sin operaciones de escritura)
+- No hay datos sensibles expuestos (información geográfica pública del nomenclador)
+- CORS permite todos los orígenes - apropiado para datos públicos
+
+## Uso desde Frontend
+
+El frontend `nomenclador` puede ahora hacer peticiones directas sin autenticación:
+
+```typescript
+// Ejemplo con fetch
+const response = await fetch('http://localhost/api/v1/nomenclador-unities?search=cordoba&per_page=10');
+const data = await response.json();
+
+// Ejemplo con axios
+const { data } = await axios.get('/api/v1/geostatistical-unit/jurisdiction/1');
+```
+
+## Referencias
+- Archivo de rutas: `Modules/Geoportal/routes/api.php`
+- Configuración CORS: `config/cors.php`
+- Tests: `Modules/Geoportal/tests/Feature/Http/V1/`
+- Archivos Bruno: `bruno/Geoportal/`
