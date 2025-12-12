@@ -62,7 +62,8 @@ sail composer require rector/rector --dev
 ### Laravel Boost
 
 ```shell
-sail composer require --dev laravel-boost/laravel-boost
+sail composer require laravel/boost --dev
+sail php artisan boost:install
 ```
 
 ### FilamentPHP
