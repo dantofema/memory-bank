@@ -69,6 +69,9 @@ uso humano y para agentes IA que necesiten extraer metadatos, tags y plantillas 
 - Cuando haya endpoints, el plan debe incluir un archivo `.http` (o colección Postman) para pruebas manuales y
   automatizadas; indicar la ruta del `.http` en la sección `files` del template.
 - Cuando un plan es extenso, dividirlo en `steps` numerados y describir precondiciones y postcondiciones para cada step.
+- Los Value Objects deben implementar siempre Wireable para que puedan ser usados en Livewire.
+- Cuando utilizamos Value Objects en los modelos Eloquent lo hacemos junto con una clase Cast. Eloquent -> Cast -> Value
+  Object.
 
 # Alcance: SOLO PLAN (NO IMPLEMENTACIÓN)
 
