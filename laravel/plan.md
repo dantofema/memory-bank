@@ -72,6 +72,7 @@ uso humano y para agentes IA que necesiten extraer metadatos, tags y plantillas 
 - Los Value Objects deben implementar siempre Wireable para que puedan ser usados en Livewire.
 - Cuando utilizamos Value Objects en los modelos Eloquent lo hacemos junto con una clase Cast. Eloquent -> Cast -> Value
   Object.
+- Todas las páginas deben tener SIEMPRE un Smoke Test. Los Smoke Test van en tests/Browser/SmokeTest.php.
 
 # Alcance: SOLO PLAN (NO IMPLEMENTACIÓN)
 
