@@ -56,7 +56,58 @@ parameters:
 ### Rector
 
 ```shell
-sail composer require rector/rector --dev
+sail composer require rector/rector driftingly/rector-laravel --dev
+```
+
+Then, create a rector.php file in the root of your application. It might look like this:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+use Rector\Config\RectorConfig;
+use Rector\Set\ValueObject\LevelSetList;
+use Rector\Set\ValueObject\SetList;
+use RectorLaravel\Set\LaravelLevelSetList;
+use RectorLaravel\Set\LaravelSetList;
+
+return RectorConfig::configure()
+    // 1. Define paths to scan (standard Laravel structure)
+    ->withPaths([
+        __DIR__.'/app',
+        __DIR__.'/config',
+        __DIR__.'/database',
+        __DIR__.'/routes',
+        __DIR__.'/tests',
+    ])
+
+    // 2. Skip internal and vendor files
+    ->withSkip([
+        __DIR__.'/bootstrap/cache',
+        __DIR__.'/storage',
+        __DIR__.'/vendor',
+    ])
+
+    // 3. Apply modern rulesets
+    ->withSets([
+        // Upgrade everything to Laravel 12 syntax
+        LaravelLevelSetList::UP_TO_LARAVEL_120,
+
+        // Laravel-specific refactoring (e.g., Collection methods, Eloquent)
+        LaravelSetList::LARAVEL_CODE_QUALITY,
+        LaravelSetList::LARAVEL_COLLECTION,
+
+        // General PHP modernization
+        LevelSetList::UP_TO_PHP_82, // Min for L12; use 83 or 84 if applicable
+        SetList::CODE_QUALITY,
+        SetList::DEAD_CODE,
+    ])
+
+    // 4. Auto-import class names for cleaner code
+    ->withImportNames(removeUnusedImports: true)
+    ->withTypeCoverageLevel(52);
+
 ```
 
 ### Laravel Boost
