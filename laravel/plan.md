@@ -1,6 +1,6 @@
 ---
 name: "Laravel Task Plan"
-version: "1.2"
+version: "1.3"
 author: "Alejandro Leone"
 last_updated: "2025-12-15"
 purpose: "AI-optimized planning framework for Laravel development tasks"
@@ -67,9 +67,13 @@ estructurados, plantillas reutilizables y convenciones estrictas para código ma
 
 ### Value Objects y DTOs
 
+- **Implementar Value Objects de forma temprana** en el desarrollo (sugerir o implementar desde el inicio)
 - Value Objects deben implementar `Wireable` (para uso en Livewire)
 - En Eloquent: usar Cast para mapear Value Objects (Eloquent → Cast → Value Object)
 - DTOs obligatorios para inputs/outputs de métodos públicos
+- **Organización**: Value Objects se organizan en `app/ValueObjects/{ModelName}/`
+    - Ejemplo: `app/ValueObjects/Product/PriceValueObject.php`
+    - Value Objects compartidos (ej: `Money`, `Quantity`) van directamente en `app/ValueObjects/`
 
 ### Validación
 
@@ -101,7 +105,8 @@ estructurados, plantillas reutilizables y convenciones estrictas para código ma
 ### Testing de APIs
 
 - Incluir archivo `.http` para pruebas manuales/automatizadas
-- Documentar ruta del `.http` en sección `files` del plan
+- Incluir archivo `.bru` (Bruno) para testing de APIs
+- Documentar ruta del `.http` y `.bru` en sección `files` del plan
 
 ## Testing y Debug
 
@@ -114,14 +119,23 @@ estructurados, plantillas reutilizables y convenciones estrictas para código ma
 ### Cobertura
 
 - Tests obligatorios para toda funcionalidad nueva
+- **Cobertura de tests debe ser prácticamente del 100%**
 - Feature tests preferidos sobre Unit tests
 - Smoke tests para todas las páginas con UI
 
 ## Documentación
 
 - Planes extensos: dividir en `steps` numerados con precondiciones y postcondiciones
+- **Cuando se implementa código: NO generar documentación ni scripts adicionales**
 - Documentación adicional: solo archivos `.md` en carpeta `docs/` con formato optimizado para IA
 - Cambios en módulos: auto-contenimiento - todos los cambios dentro del mismo módulo
+
+## División de Tareas
+
+- **Cuando una tarea implica crear más de 3 archivos, separar en pasos**
+- Cada paso debe utilizar un template apropiado (MigrationTask, FeatureTask, RefactorTask)
+- Cada paso debe ser independiente y tener sus propios tests y validación
+- Los pasos deben estar numerados con precondiciones y postcondiciones claras
 
 ---
 
@@ -237,7 +251,9 @@ files:
   - "Modules/ModuleName/database/factories/ModelFactory.php"
   - "Modules/ModuleName/tests/Feature/FeatureNameTest.php"
   - "Modules/ModuleName/http/FeatureName.http" # archivo para pruebas manuales/automáticas
+  - "Modules/ModuleName/http/FeatureName.bru"  # archivo Bruno para testing de API
 http_file: "Modules/ModuleName/http/FeatureName.http"
+bruno_file: "Modules/ModuleName/http/FeatureName.bru"
 sail_commands:
   - "./vendor/bin/sail artisan migrate:fresh --seed --no-interaction"
   - "./vendor/bin/sail test --filter=FeatureNameTest"
@@ -302,7 +318,9 @@ files:
   - "Modules/Resource/database/factories/ResourceFactory.php"
   - "Modules/Resource/tests/Feature/ListResourceTest.php"
   - "Modules/Resource/http/ListResources.http" # archivo para pruebas manuales/automáticas
+  - "Modules/Resource/http/ListResources.bru"  # archivo Bruno para testing de API
 http_file: "Modules/Resource/http/ListResources.http"
+bruno_file: "Modules/Resource/http/ListResources.bru"
 sail_commands:
   - "./vendor/bin/sail artisan migrate:fresh --seed --no-interaction"
   - "./vendor/bin/sail test --filter=ListResourceTest"
