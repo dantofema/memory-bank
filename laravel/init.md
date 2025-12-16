@@ -31,7 +31,7 @@ php artisan sail:install
 
 ### 2. Habilitar Xdebug (opcional pero recomendado)
 
-**Configuración en `.env`**:
+**Configuración en `.env`**: 
 
 ```bash
 SAIL_XDEBUG_MODE=develop,debug
