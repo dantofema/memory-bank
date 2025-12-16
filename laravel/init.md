@@ -24,11 +24,29 @@ alias `sail`).
 
 ```bash
 composer require laravel/sail --dev
+php artisan sail:install
 ./vendor/bin/sail up -d
 ./vendor/bin/sail npm install
 ```
 
-### 2. Migraciones y datos iniciales
+### 2. Habilitar Xdebug (opcional pero recomendado)
+
+**Configuración en `.env`**:
+
+```bash
+SAIL_XDEBUG_MODE=develop,debug
+```
+
+**Reiniciar contenedores para aplicar cambios**:
+
+```bash
+./vendor/bin/sail down
+./vendor/bin/sail up -d
+```
+
+**Nota IA**: Xdebug permite debugging paso a paso con breakpoints en el IDE. El modo `develop` habilita características de desarrollo, y `debug` activa el debugging remoto. Útil para debugging complejo pero puede ralentizar la ejecución; desactivar en producción.
+
+### 3. Migraciones y datos iniciales
 
 ```bash
 ./vendor/bin/sail artisan migrate --seed
