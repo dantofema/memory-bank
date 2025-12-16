@@ -148,19 +148,7 @@ return RectorConfig::configure()
 
 ---
 
-## Herramientas de Desarrollo Laravel
 
-### Laravel Boost (MCP Server - Herramientas IA)
-
-```bash
-./vendor/bin/sail composer require laravel/boost --dev
-./vendor/bin/sail artisan boost:install
-```
-
-**Nota IA**: Boost provee herramientas MCP especializadas para este proyecto (tinker, database-query, search-docs,
-etc.).
-
----
 
 ## Framework Frontend/Admin
 
@@ -318,6 +306,58 @@ it('can navigate and interact with forms', function () {
 **Nota IA**: Los Browser Tests son ideales para validar flujos críticos de usuario que involucran múltiples pasos,
 interacciones complejas con JavaScript, o comportamiento visual. Complementan los Feature Tests al probar la aplicación
 como lo haría un usuario real en un navegador.
+
+---
+
+## Herramientas de Desarrollo Laravel
+
+
+
+### Laravel Modules (Arquitectura modular)
+
+**Instalación**:
+
+```bash
+./vendor/bin/sail composer require nwidart/laravel-modules
+./vendor/bin/sail php artisan vendor:publish --provider="Nwidart\Modules\LaravelModulesServiceProvider"
+```
+
+**Configuración en `composer.json`**:
+
+Agregar la siguiente configuración en la sección `extra`:
+
+```json
+"extra": {
+    "laravel": {
+        "dont-discover": []
+    },
+    "merge-plugin": {
+        "include": [
+            "Modules/*/composer.json"
+        ]
+    }
+},
+```
+
+**Regenerar autoload**:
+
+```bash
+./vendor/bin/sail composer dump-autoload
+```
+
+**Nota IA**: Laravel Modules permite organizar la aplicación en módulos independientes y reutilizables. Cada módulo puede contener sus propios controladores, modelos, vistas, rutas y migraciones. Ideal para aplicaciones grandes con múltiples dominios o funcionalidades bien delimitadas.
+
+---
+
+### Laravel Boost (MCP Server - Herramientas IA)
+
+```bash
+./vendor/bin/sail composer require laravel/boost --dev
+./vendor/bin/sail artisan boost:install
+```
+
+**Nota IA**: Boost provee herramientas MCP especializadas para este proyecto (tinker, database-query, search-docs,
+etc.).
 
 ---
 
