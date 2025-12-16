@@ -174,9 +174,29 @@ etc.).
 ./vendor/bin/sail artisan icons:cache
 ```
 
-**Plugins recomendados**:
+**Configuración del Panel**:
 
-#### Environment Indicator
+Archivo: `app/Providers/Filament/AdminPanelProvider.php`
+
+```php
+use Filament\Panel;
+use pxlrbt\FilamentEnvironmentIndicator\EnvironmentIndicatorPlugin;
+
+public function panel(Panel $panel): Panel
+{
+    return $panel
+        // ...existing code...
+        ->spa()      // Activa modo SPA (mejora UX sin recargas completas)
+        ->profile()  // Habilita gestión de perfil de usuario
+        ->plugins([
+            EnvironmentIndicatorPlugin::make(),  // Muestra entorno activo (local/staging/production)
+        ]);
+}
+```
+
+**Nota IA**: El modo SPA mejora la experiencia de usuario al eliminar recargas de página. El perfil permite a los usuarios gestionar su cuenta. El Environment Indicator previene errores al identificar visualmente el entorno activo.
+
+**Plugin Environment Indicator**:
 
 ```bash
 ./vendor/bin/sail composer require pxlrbt/filament-environment-indicator
