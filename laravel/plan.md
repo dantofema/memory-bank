@@ -29,7 +29,7 @@ context:
 
 ## Resumen
 
-Framework de planificación optimizado para agentes IA que ejecutan tareas de desarrollo Laravel. Proporciona metadatos
+Framework de planificación optimizada para agentes IA que ejecutan tareas de desarrollo Laravel. Proporciona metadatos
 estructurados, plantillas reutilizables y convenciones estrictas para código mantenible y testeable.
 
 # Convenciones
