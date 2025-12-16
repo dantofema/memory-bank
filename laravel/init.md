@@ -367,6 +367,64 @@ Agregar la siguiente configuración en la sección `extra`:
 
 ---
 
+### Laravel Data (DTOs tipados)
+
+**Instalación**:
+
+```bash
+./vendor/bin/sail composer require spatie/laravel-data
+```
+
+**Ejemplo básico** (`app/Data/UserData.php`):
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Data;
+
+use Spatie\LaravelData\Data;
+
+final readonly class UserData extends Data
+{
+    public function __construct(
+        public string $name,
+        public string $email,
+        public ?string $phone = null,
+    ) {}
+}
+
+// Uso:
+$data = UserData::from(['name' => 'Juan', 'email' => 'juan@example.com']);
+$data = UserData::from($request); // Desde Request
+$data = UserData::from($model);   // Desde Model
+```
+
+**Integración con Livewire**:
+
+```php
+use Livewire\Wireable;
+
+final readonly class UserData extends Data implements Wireable
+{
+    // Automáticamente serializable en componentes Livewire
+}
+
+// En componente:
+public UserData $userData;
+```
+
+**Nota IA**: Usar Data objects para:
+- **Props de Livewire**: Tipado fuerte, validación automática
+- **Respuestas de API**: Transformación JSON consistente
+- **Commands/Jobs**: Payloads inmutables y serializables
+- **Form Requests**: Casting automático a objetos tipados
+
+Beneficios: inmutabilidad (`readonly`), validación integrada, casting automático, compatible con Larastan nivel 10. Documentación: https://spatie.be/docs/laravel-data
+
+---
+
 ### Laravel Boost (MCP Server - Herramientas IA)
 
 ```bash
