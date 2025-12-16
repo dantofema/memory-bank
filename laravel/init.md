@@ -1,65 +1,101 @@
-# Iniciar nuevo proyecto Laravel
+# Guía de Inicio: Proyecto Laravel - Optimizada para IA
 
-- Siempre utilizamos Laravel Sail, esto significa que los comandos de Artisan y Composer se ejecutan a través de Sail.
+## Contexto del Stack
 
-## Asegurarse de tener instalado Laravel Sail
+**Entorno**: Laravel Sail (Docker)  
+**Versiones principales**:
 
-```shell
+- PHP 8.5+
+- Laravel 12
+- Filament 4
+- Livewire 3
+- Pest 4
+- TailwindCSS 4
+- PostgreSQL
+
+**Regla fundamental**: TODOS los comandos Artisan, Composer, NPM y PHP se ejecutan a través de `./vendor/bin/sail` (o
+alias `sail`).
+
+---
+
+## Secuencia de Inicialización
+
+### 1. Instalación base de Sail
+
+```bash
 composer require laravel/sail --dev
-sail up -d
-sail npm install
+./vendor/bin/sail up -d
+./vendor/bin/sail npm install
 ```
 
-## Migraciones iniciales`
+### 2. Migraciones y datos iniciales
 
-```shell
-sail artisan migrate --seed
+```bash
+./vendor/bin/sail artisan migrate --seed
 ```
 
-## Paquetes que debes instalar al iniciar un nuevo proyecto Laravel
+---
 
-### Pint
+## Paquetes Obligatorios de Calidad de Código
 
-```shell
-sail composer require laravel/pint --dev
-./vendor/bin/pint
+### Pint (Formateador de código)
+
+**Instalación**:
+
+```bash
+./vendor/bin/sail composer require laravel/pint --dev
 ```
 
-### Larastan
+**Uso inmediato**:
 
-```shell
-sail composer require --dev "larastan/larastan:^3.0"
+```bash
+./vendor/bin/sail bin pint
 ```
 
-Then, create a phpstan.neon or phpstan.neon.dist file in the root of your application. It might look like this:
+**Nota IA**: Ejecutar `sail bin pint` después de CADA cambio de código antes de finalizar.
+
+---
+
+### Larastan (Análisis estático - PHPStan para Laravel)
+
+**Instalación**:
+
+```bash
+./vendor/bin/sail composer require --dev "larastan/larastan:^3.0"
+```
+
+**Archivo de configuración**: Crear `phpstan.neon` en la raíz:
 
 ```neon
 includes:
-
-- vendor/larastan/larastan/extension.neon
-- vendor/nesbot/carbon/extension.neon
+    - vendor/larastan/larastan/extension.neon
+    - vendor/nesbot/carbon/extension.neon
 
 parameters:
     paths:
         - app/
-    # Level 10 is the highest level
-    level: 5
-
-# ignoreErrors:
-# - '#PHPDoc tag @var#'
-#
-
-# excludePaths:
-# - ./*/*/FileToBeExcluded.php
+    level: 5  # Incrementar gradualmente hasta 10 (máximo rigor)
 ```
 
-### Rector
+**Ejecución**:
 
-```shell
-sail composer require rector/rector driftingly/rector-laravel --dev
+```bash
+./vendor/bin/sail bin phpstan analyse
 ```
 
-Then, create a rector.php file in the root of your application. It might look like this:
+**Nota IA**: Este proyecto usa Larastan en modo estricto. Validar código generado contra nivel configurado.
+
+---
+
+### Rector (Refactoring automatizado)
+
+**Instalación**:
+
+```bash
+./vendor/bin/sail composer require rector/rector driftingly/rector-laravel --dev
+```
+
+**Archivo de configuración**: Crear `rector.php` en la raíz:
 
 ```php
 <?php
@@ -67,13 +103,14 @@ Then, create a rector.php file in the root of your application. It might look li
 declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
+use Rector\DeadCode\Rector\ClassMethod\RemoveUnusedPublicMethodParameterRector;
 use Rector\Set\ValueObject\LevelSetList;
 use Rector\Set\ValueObject\SetList;
+use RectorLaravel\Rector\ClassMethod\MakeModelAttributesAndScopesProtectedRector;
 use RectorLaravel\Set\LaravelLevelSetList;
 use RectorLaravel\Set\LaravelSetList;
 
 return RectorConfig::configure()
-    // 1. Define paths to scan (standard Laravel structure)
     ->withPaths([
         __DIR__.'/app',
         __DIR__.'/config',
@@ -81,58 +118,241 @@ return RectorConfig::configure()
         __DIR__.'/routes',
         __DIR__.'/tests',
     ])
-
-    // 2. Skip internal and vendor files
     ->withSkip([
         __DIR__.'/bootstrap/cache',
         __DIR__.'/storage',
         __DIR__.'/vendor',
     ])
-
-    // 3. Apply modern rulesets
     ->withSets([
-        // Upgrade everything to Laravel 12 syntax
         LaravelLevelSetList::UP_TO_LARAVEL_120,
-
-        // Laravel-specific refactoring (e.g., Collection methods, Eloquent)
         LaravelSetList::LARAVEL_CODE_QUALITY,
         LaravelSetList::LARAVEL_COLLECTION,
-
-        // General PHP modernization
-        LevelSetList::UP_TO_PHP_82, // Min for L12; use 83 or 84 if applicable
+        LevelSetList::UP_TO_PHP_82,
         SetList::CODE_QUALITY,
         SetList::DEAD_CODE,
     ])
-
-    // 4. Auto-import class names for cleaner code
     ->withImportNames(removeUnusedImports: true)
-    ->withTypeCoverageLevel(52);
-
+    ->withTypeCoverageLevel(52)
+    ->withSkip([
+        MakeModelAttributesAndScopesProtectedRector::class,
+        RemoveUnusedPublicMethodParameterRector::class,
+    ]);
 ```
 
-### Laravel Boost
+**Ejecución**:
 
-```shell
-sail composer require laravel/boost --dev
-sail php artisan boost:install
+```bash
+./vendor/bin/sail bin rector process --dry-run  # Preview
+./vendor/bin/sail bin rector process            # Aplicar cambios
 ```
 
-### FilamentPHP
+---
 
-```shell
-sail composer require filament/filament:"^4.0"
+## Herramientas de Desarrollo Laravel
 
-sail php artisan filament:install --panels
+### Laravel Boost (MCP Server - Herramientas IA)
 
-sail php artisan icons:cache
+```bash
+./vendor/bin/sail composer require laravel/boost --dev
+./vendor/bin/sail artisan boost:install
 ```
 
-## Plugins de FilamentPHP que debes instalar
+**Nota IA**: Boost provee herramientas MCP especializadas para este proyecto (tinker, database-query, search-docs,
+etc.).
 
-### Filament Environment Indicator
+---
 
-- https://filamentphp.com/plugins/pxlrbt-environment-indicator
+## Framework Frontend/Admin
 
-```sh
-sail composer require pxlrbt/filament-environment-indicator
+### FilamentPHP 4
+
+**Instalación**:
+
+```bash
+./vendor/bin/sail composer require filament/filament:"^4.0"
+./vendor/bin/sail artisan filament:install --panels
+./vendor/bin/sail artisan icons:cache
 ```
+
+**Plugins recomendados**:
+
+#### Environment Indicator
+
+```bash
+./vendor/bin/sail composer require pxlrbt/filament-environment-indicator
+```
+
+**Documentación**: https://filamentphp.com/plugins/pxlrbt-environment-indicator
+
+---
+
+## Testing: Architecture Tests (Pest)
+
+**Crear archivo**: `tests/Feature/ArchTest.php`
+
+```php
+<?php
+
+declare(strict_types=1);
+
+use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
+use Livewire\Wireable;
+
+arch()
+    ->expect('App\Enums')
+    ->toBeEnums();
+
+arch()
+    ->expect('App\Models')
+    ->toBeClasses()
+    ->toExtend(Model::class)
+    ->ignoring(User::class);
+
+arch()
+    ->expect('App\Http')
+    ->toOnlyBeUsedIn('App\Http');
+
+arch()->preset()->security()->ignoring('md5');
+
+arch()
+    ->expect('App\ValueObjects')
+    ->toImplement(Wireable::class);
+
+arch()
+    ->expect('App\Models')
+    ->toHaveLineCountLessThan(100);
+
+arch()
+    ->expect('App')
+    ->toHaveLineCountLessThan(300)
+    ->ignoring(['App\Providers', 'App\Models']);
+
+arch()->preset()->php();
+
+arch()->preset()->strict()->ignoring('App\Filament');
+
+arch()->preset()->laravel();
+```
+
+**Ejecución**:
+
+```bash
+./vendor/bin/sail artisan test --filter=ArchTest
+```
+
+---
+
+## Testing: Browser Tests (Pest Browser Plugin)
+
+**Instalación**:
+
+```bash
+./vendor/bin/sail composer require pestphp/pest-plugin-browser --dev
+./vendor/bin/sail npm install playwright@latest
+./vendor/bin/sail npx playwright install
+```
+
+**Directorio de tests**: `tests/Browser/`
+
+**Ejemplo de test básico**:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+it('loads the homepage successfully', function () {
+    $page = visit('/');
+    
+    $page->assertSee('Bienvenido')
+        ->assertNoJavascriptErrors()
+        ->assertNoConsoleLogs();
+});
+
+it('can navigate and interact with forms', function () {
+    $page = visit('/login');
+    
+    $page->fill('email', 'usuario@example.com')
+        ->fill('password', 'password123')
+        ->click('Iniciar sesión')
+        ->assertSee('Dashboard');
+});
+```
+
+**Ejecución**:
+
+```bash
+./vendor/bin/sail artisan test tests/Browser/
+```
+
+**Capacidades de Browser Tests**:
+
+- Interacción real con navegadores (Chrome, Firefox, Safari)
+- Testing E2E de flujos completos de usuario
+- Validación de JavaScript, AJAX y comportamiento asíncrono
+- Captura de screenshots y grabación de video
+- Testing en múltiples viewports (móvil, tablet, desktop)
+- Modo headless o visible para debugging
+
+**Nota IA**: Los Browser Tests son ideales para validar flujos críticos de usuario que involucran múltiples pasos,
+interacciones complejas con JavaScript, o comportamiento visual. Complementan los Feature Tests al probar la aplicación
+como lo haría un usuario real en un navegador.
+
+---
+
+## Checklist Post-Instalación para IA
+
+Después de instalar estos paquetes, verificar:
+
+- [ ] `./vendor/bin/sail up -d` → Contenedores corriendo
+- [ ] `./vendor/bin/sail artisan migrate` → Base de datos inicializada
+- [ ] `./vendor/bin/sail bin pint` → Sin errores de formato
+- [ ] `./vendor/bin/sail bin phpstan analyse` → Sin errores de análisis estático
+- [ ] `./vendor/bin/sail artisan test` → Todos los tests pasan
+- [ ] `./vendor/bin/sail npm run build` → Assets compilados
+
+---
+
+## Comandos de Calidad para IA (ejecutar antes de finalizar cambios)
+
+```bash
+# 1. Formatear código
+./vendor/bin/sail bin pint
+
+# 2. Análisis estático
+./vendor/bin/sail bin phpstan analyse
+
+# 3. Refactoring (preview)
+./vendor/bin/sail bin rector process --dry-run
+
+# 4. Tests relevantes
+./vendor/bin/sail artisan test --filter=NombreDelTest
+
+# 5. Browser tests (si aplica)
+./vendor/bin/sail artisan test tests/Browser/
+
+# 6. Compilar assets (si hay cambios frontend)
+./vendor/bin/sail npm run build
+```
+
+---
+
+## Notas de Seguridad
+
+- **Secretos**: Nunca incluir credenciales en ejemplos de código.
+- **Variables de entorno**: Usar `config('app.key')`, NUNCA `env('APP_KEY')` fuera de archivos de configuración.
+- **Validación**: Siempre usar Form Requests para validación de datos.
+- **Autorización**: Implementar Gates y Policies para control de acceso.
+
+---
+
+## Convenciones de Proyecto
+
+- **Identificadores**: Inglés (variables, funciones, clases).
+- **Strings/Mensajes**: Español.
+- **Tipado**: Fuertemente tipado (type hints, return types obligatorios).
+
+- **Frontend**: Livewire + Filament para interactividad, TailwindCSS 4 para estilos.
+- **Tests**: Pest 4, preferir Feature tests sobre Unit tests.
+- **Factories**: Usar factories para crear modelos en tests, no datos manuales.
