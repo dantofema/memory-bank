@@ -357,6 +357,45 @@ Agregar la siguiente configuración en la sección `extra`:
 },
 ```
 
+En `phpunit.xml` agregar los siguientes testsuite y source:
+```xml
+  <testsuites>
+        <testsuite name="Unit">
+            <directory>tests/Unit</directory>
+        </testsuite>
+        <testsuite name="Feature">
+            <directory>tests/Feature</directory>
+        </testsuite>
+
+        <testsuite name="Modules">
+            <directory>./Modules/*/tests/Feature</directory>
+            <directory>./Modules/*/tests/Unit</directory>
+        </testsuite>
+
+    </testsuites>
+    <source>
+        <include>
+            <directory>app</directory>
+            <directory>./Modules</directory>
+        </include>
+
+        <exclude>
+            <directory>./Modules/*/config</directory>
+            <directory>./Modules/*/database</directory>
+            <directory>./Modules/*/resources</directory>
+            <directory>./Modules/*/routes</directory>
+            <directory>./Modules/*/tests</directory>
+        </exclude>
+    </source>
+```
+En `Pest.php` agregar el siguiente in() '../Modules/*/tests/Feature' para que lea los tests:
+
+```php
+pest()->extend(Tests\TestCase::class)
+    ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
+    ->in('Feature', '../Modules/*/tests/Feature');
+```
+
 **Regenerar autoload**:
 
 ```bash
