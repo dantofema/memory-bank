@@ -1,6 +1,6 @@
 ---
 name: "Laravel Technical Requirements"
-version: "3.0"
+version: "3.1"
 author: "Alejandro Leone"
 last_updated: "2025-12-16"
 purpose: "Technical conventions and architectural requirements for Laravel development"
@@ -21,6 +21,7 @@ value_objects:
   criteria: "Use VO if meets at least 1: business rules, reusability, invariants, semantic clarity"
   organization: "app/ValueObjects/{ModelName}/ or app/ValueObjects/ for shared"
   implementation: "Wireable interface, Eloquent Cast, validation in constructor"
+  see_also: "./value-objects.md"
 ---
 
 # Requerimientos Técnicos Laravel
@@ -29,7 +30,7 @@ value_objects:
 
 Convenciones técnicas y arquitectónicas para desarrollo Laravel. Define estándares de código, arquitectura, base de datos, APIs y testing que deben aplicarse en todos los proyectos.
 
-**Versión 3.0**: incluye criterios claros para Value Objects, ejemplos prácticos y formato optimizado para agentes IA.
+**Versión 3.1**: criterios de decisión para Value Objects, tabla comparativa, ejemplo mínimo y referencia a documentación completa en [`value-objects.md`](./value-objects.md).
 
 ---
 
@@ -123,6 +124,8 @@ final readonly class OrderConfirmedEvent
 
 ### Value Objects y Spatie Laravel Data
 
+**📖 Para ejemplos completos y patrones de implementación, ver [`value-objects.md`](./value-objects.md)**
+
 - **Implementar Value Objects de forma temprana** en el desarrollo (sugerir o implementar desde el inicio)
 - Value Objects deben implementar `Wireable` (para uso en Livewire)
 - En Eloquent: usar Cast para mapear Value Objects (Eloquent → Cast → Value Object)
@@ -184,6 +187,7 @@ declare(strict_types=1);
 
 namespace App\ValueObjects;
 
+use InvalidArgumentException;
 use Livewire\Wireable;
 
 final readonly class Money implements Wireable
@@ -193,7 +197,7 @@ final readonly class Money implements Wireable
         public string $currency = 'ARS'
     ) {
         if ($this->cents < 0) {
-            throw new \InvalidArgumentException('El monto no puede ser negativo');
+            throw new InvalidArgumentException('El monto no puede ser negativo');
         }
     }
 
@@ -206,11 +210,6 @@ final readonly class Money implements Wireable
     {
         return new self($value['cents'], $value['currency']);
     }
-
-    public function format(): string
-    {
-        return '$' . number_format($this->cents / 100, 2, ',', '.');
-    }
 }
 ```
 
@@ -218,7 +217,7 @@ final readonly class Money implements Wireable
 - `final readonly`: inmutabilidad garantizada
 - Constructor valida invariantes (no permite estado inválido)
 - `Wireable`: compatibilidad con Livewire
-- Métodos de dominio (`format()`) en lugar de lógica dispersa
+- **Para implementación completa con Cast, testing y métodos de dominio**: ver [`value-objects.md`](./value-objects.md)
 
 ---
 

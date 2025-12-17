@@ -1,6 +1,6 @@
 ---
 name: "Value Objects Examples"
-version: "1.0"
+version: "2.0"
 author: "Alejandro Leone"
 last_updated: "2025-12-16"
 purpose: "Detailed examples and patterns for implementing Value Objects in Laravel"
@@ -16,13 +16,22 @@ tags:
 
 # Value Objects: Ejemplos y Patrones
 
+## TL;DR - Resumen Ejecutivo
+
+- **Value Objects (VO)** encapsulan lógica de negocio, garantizan invariantes y aportan semántica al dominio
+- **Patrón completo**: VO (`final readonly`, `Wireable`) + Eloquent Cast + Unit/Feature tests
+- **Organización**: `app/ValueObjects/{ModelName}/` para VOs específicos, `app/ValueObjects/` para compartidos
+- **Criterios de decisión**: consultar tabla comparativa en [`conventions.md`](./conventions.md)
+- **Tres patrones base**: `Money` (operaciones aritméticas), `PhoneNumber` (normalización), `Stock` (flujo de estado)
+
 ## Resumen
 
-Ejemplos completos de implementación de Value Objects en Laravel con Eloquent Casts, Livewire Wireable y testing con Pest. Complementa los criterios definidos en [requirements.md](conventions.md).
+Ejemplos completos de implementación de Value Objects en Laravel con Eloquent Casts, Livewire Wireable y testing con Pest. Complementa los criterios definidos en [`conventions.md`](./conventions.md).
 
 ---
 
 ## Patrón Base: Money
+**Complejidad**: 🟢 Básico | **Casos de uso**: Montos monetarios, operaciones aritméticas, comparaciones
 
 ### Value Object
 
@@ -317,6 +326,7 @@ describe('Money en Eloquent', function () {
 ---
 
 ## Patrón: PhoneNumber
+**Complejidad**: 🟡 Intermedio | **Casos de uso**: Normalización de formato, validación internacional, integración WhatsApp
 
 ### Value Object
 
@@ -405,6 +415,7 @@ final readonly class PhoneNumber implements Wireable
 ---
 
 ## Patrón: Stock
+**Complejidad**: 🟡 Intermedio | **Casos de uso**: Gestión de inventario, reservas, transiciones de estado con validación
 
 ### Value Object
 
@@ -490,6 +501,100 @@ final readonly class Stock implements Wireable
     public static function fromLivewire($value): self
     {
         return new self($value['available'], $value['reserved']);
+    }
+}
+```
+
+---
+
+## Anti-Patrones: Cuándo NO Usar Value Objects
+
+### ❌ Over-Engineering: VOs para datos simples sin lógica
+
+```php
+// ❌ MAL: No aporta valor
+final readonly class ProductName
+{
+    public function __construct(public string $value) {}
+}
+
+// ✅ BIEN: String directo con validación en FormRequest
+class CreateProductRequest extends FormRequest
+{
+    public function rules(): array
+    {
+        return ['name' => 'required|string|max:255'];
+    }
+}
+```
+
+### ❌ Dependencias externas dentro del VO
+
+```php
+// ❌ MAL: VO no debe depender de servicios externos
+final readonly class ProductPrice
+{
+    public function __construct(
+        private CurrencyService $currencyService, // ❌ Inyección de dependencia
+        public int $cents
+    ) {}
+}
+
+// ✅ BIEN: VO solo con datos y lógica pura
+final readonly class Money
+{
+    public function __construct(
+        public int $cents,
+        public string $currency = 'ARS'
+    ) {}
+    
+    // Conversión se hace fuera del VO
+}
+```
+
+### ❌ Mutabilidad: VOs que cambian su estado
+
+```php
+// ❌ MAL: VO mutable
+class Money
+{
+    public function __construct(public int $cents) {}
+    
+    public function add(int $amount): void // ❌ Modifica estado
+    {
+        $this->cents += $amount;
+    }
+}
+
+// ✅ BIEN: VO inmutable retorna nueva instancia
+final readonly class Money
+{
+    public function __construct(public int $cents) {}
+    
+    public function add(self $other): self // ✅ Nueva instancia
+    {
+        return new self($this->cents + $other->cents);
+    }
+}
+```
+
+### ❌ Validación débil o inconsistente
+
+```php
+// ❌ MAL: Permite crear VOs inválidos
+final readonly class Email
+{
+    public function __construct(public string $value) {} // ❌ Sin validación
+}
+
+// ✅ BIEN: Garantiza estado válido siempre
+final readonly class Email
+{
+    public function __construct(public string $value)
+    {
+        if (! filter_var($value, FILTER_VALIDATE_EMAIL)) {
+            throw new InvalidArgumentException("Email inválido: {$value}");
+        }
     }
 }
 ```
