@@ -1,6 +1,6 @@
 ---
 name: "Laravel Technical Requirements"
-version: "2.0"
+version: "3.0"
 author: "Alejandro Leone"
 last_updated: "2025-12-16"
 purpose: "Technical conventions and architectural requirements for Laravel development"
@@ -17,6 +17,10 @@ context:
   team_size: 1
   priority: "MVP - speed and simplicity"
   quality_gates: "PHPStan level 6+, Pint, Rector"
+value_objects:
+  criteria: "Use VO if meets at least 1: business rules, reusability, invariants, semantic clarity"
+  organization: "app/ValueObjects/{ModelName}/ or app/ValueObjects/ for shared"
+  implementation: "Wireable interface, Eloquent Cast, validation in constructor"
 ---
 
 # Requerimientos Técnicos Laravel
@@ -24,6 +28,8 @@ context:
 ## Resumen
 
 Convenciones técnicas y arquitectónicas para desarrollo Laravel. Define estándares de código, arquitectura, base de datos, APIs y testing que deben aplicarse en todos los proyectos.
+
+**Versión 3.0**: incluye criterios claros para Value Objects, ejemplos prácticos y formato optimizado para agentes IA.
 
 ---
 
@@ -44,6 +50,8 @@ Convenciones técnicas y arquitectónicas para desarrollo Laravel. Define están
 - **Formateo**: Pint (ejecutar siempre antes de commit)
 - **Refactoring**: Rector (cuando aplique)
 - **Testing**: Pest v4 (cobertura obligatoria para toda funcionalidad)
+
+---
 
 ## Arquitectura y Diseño
 
@@ -70,11 +78,104 @@ Convenciones técnicas y arquitectónicas para desarrollo Laravel. Define están
     - Ejemplo: `app/ValueObjects/Product/PriceValueObject.php`
     - Value Objects compartidos (ej: `Money`, `Quantity`) van directamente en `app/ValueObjects/`
 
+#### Criterios para Usar Value Objects
+
+**Usar Value Object si cumple AL MENOS 1 de estos criterios:**
+
+1. **Tiene reglas de negocio propias**: la validación o comportamiento va más allá de tipos primitivos
+   - ✅ `Money` (no permite negativos, maneja redondeo, formatea con moneda)
+   - ✅ `PhoneNumber` (valida formato, normaliza, extrae código de país)
+   - ❌ `string $name` (simple validación de longitud, no requiere VO)
+
+2. **Se reutiliza en múltiples contextos**: aparece en varios modelos o servicios
+   - ✅ `Address` (usado en Order, User, Merchant)
+   - ✅ `Stock` (usado en Product, ProductVariant)
+   - ❌ `product_description` (solo Product lo usa, simple string)
+
+3. **No debe existir inválido**: la construcción debe garantizar estado válido siempre
+   - ✅ `Email` (constructor valida formato, garantiza email válido)
+   - ✅ `OrderStatus` (enum como VO garantiza valores permitidos)
+   - ❌ `int $quantity` (puede ser negativo temporalmente durante validación)
+
+4. **Aporta semántica clara al dominio**: el tipo primitivo no expresa suficiente significado
+   - ✅ `PromotionPeriod` (expresa vigencia con start/end, no solo dos dates)
+   - ✅ `DiscountValue` (distingue porcentaje vs monto fijo)
+   - ❌ `bool $is_active` (el booleano es semánticamente claro)
+
+**Regla práctica**: si dudás, empezá con tipo primitivo. Convertí a VO cuando el código muestre duplicación de validaciones o lógica relacionada.
+
+---
+
+## Value Objects: Ejemplos Prácticos
+
+### Tabla Comparativa: Usar VO vs No Usar VO
+
+| Caso | Primitivo | ¿Usar VO? | Razón |
+|------|-----------|-----------|-------|
+| Precio de producto | `int $price_cents` | ✅ **Sí - `Money`** | Reglas de negocio (formato, redondeo, comparación), reutilizable |
+| Stock disponible | `int $stock` | ✅ **Sí - `Stock`** | Reglas (no negativo, reservado vs disponible), reutilizable |
+| Teléfono de contacto | `string $phone` | ✅ **Sí - `PhoneNumber`** | Validación compleja (formato internacional), normalización |
+| Email de usuario | `string $email` | ✅ **Sí - `Email`** | No debe existir inválido, validación en constructor |
+| Estado del pedido | `string $status` | ✅ **Sí - `OrderStatus`** | Valores limitados, transiciones con reglas, semántica clara |
+| Nombre de producto | `string $name` | ❌ **No** | Simple validación de longitud, no hay lógica de negocio |
+| Descripción | `string $description` | ❌ **No** | Solo almacenamiento, sin reglas propias |
+| Flag activo | `bool $is_active` | ❌ **No** | Booleano es semánticamente claro |
+| Cantidad en carrito | `int $quantity` | ⚠️ **Depende** | Si solo valida > 0 → No. Si tiene lógica de conversión de unidades → Sí |
+
+### Implementación Mínima de un Value Object
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\ValueObjects;
+
+use Livewire\Wireable;
+
+final readonly class Money implements Wireable
+{
+    public function __construct(
+        public int $cents,
+        public string $currency = 'ARS'
+    ) {
+        if ($this->cents < 0) {
+            throw new \InvalidArgumentException('El monto no puede ser negativo');
+        }
+    }
+
+    public function toLivewire(): array
+    {
+        return ['cents' => $this->cents, 'currency' => $this->currency];
+    }
+
+    public static function fromLivewire($value): self
+    {
+        return new self($value['cents'], $value['currency']);
+    }
+
+    public function format(): string
+    {
+        return '$' . number_format($this->cents / 100, 2, ',', '.');
+    }
+}
+```
+
+**Características clave:**
+- `final readonly`: inmutabilidad garantizada
+- Constructor valida invariantes (no permite estado inválido)
+- `Wireable`: compatibilidad con Livewire
+- Métodos de dominio (`format()`) en lugar de lógica dispersa
+
+---
+
 ### Validación
 
 - Usar FormRequest o clases con `Illuminate\Validation`
 - Lanzar excepciones (`throw`) cuando los datos no cumplen requisitos
 - Preferir excepciones sobre valores `null` o `''` por defecto
+
+---
 
 ## Base de Datos
 
@@ -88,6 +189,8 @@ Convenciones técnicas y arquitectónicas para desarrollo Laravel. Define están
 - Repetir estructura de `app/` en `tests/Feature/`
 - Mantener mismos namespaces y estructura de carpetas
 - **Smoke Tests obligatorios** para todas las páginas → `tests/Browser/SmokeTest.php`
+
+---
 
 ## API REST
 
@@ -103,6 +206,8 @@ Convenciones técnicas y arquitectónicas para desarrollo Laravel. Define están
 - Incluir archivo `.bru` (Bruno) para testing de APIs
 - Documentar ruta del `.http` y `.bru` en sección `files` del plan
 
+---
+
 ## Testing y Debug
 
 ### Estrategia
@@ -110,6 +215,7 @@ Convenciones técnicas y arquitectónicas para desarrollo Laravel. Define están
 - Priorizar testeabilidad: especificar fixtures, mocks, log points
 - Logs detallados: indicar niveles (info/debug/error) para debugging
 - Crear Interfaces cuando mejore simplicidad y aislamiento en tests
+- **Value Objects**: testear validaciones en Unit tests, comportamiento en Feature tests con Eloquent Casts
 
 ### Cobertura
 
@@ -117,6 +223,9 @@ Convenciones técnicas y arquitectónicas para desarrollo Laravel. Define están
 - **Cobertura de tests debe ser prácticamente del 100%**
 - Feature tests preferidos sobre Unit tests
 - Smoke tests para todas las páginas con UI
+- **Unit tests obligatorios para Value Objects**: validar constructor, invariantes, métodos de dominio
+
+---
 
 ## Documentación
 
@@ -124,6 +233,8 @@ Convenciones técnicas y arquitectónicas para desarrollo Laravel. Define están
 - **Cuando se implementa código: NO generar documentación ni scripts adicionales**
 - Documentación adicional: solo archivos `.md` en carpeta `docs/` con formato optimizado para IA
 - Cambios en módulos: auto-contenimiento - todos los cambios dentro del mismo módulo
+
+---
 
 ## División de Tareas
 
@@ -146,7 +257,7 @@ Checklist mínima para validar cualquier implementación:
 
 Comandos sugeridos (ejecutar desde el root del proyecto):
 
-```zsh
+```bash
 ./vendor/bin/sail up -d
 ./vendor/bin/sail artisan migrate:fresh --seed --no-interaction
 ./vendor/bin/sail bin pint --dirty
