@@ -22,6 +22,8 @@ value_objects:
   organization: "app/ValueObjects/{ModelName}/ or app/ValueObjects/ for shared"
   implementation: "Wireable interface, Eloquent Cast, validation in constructor"
   see_also: "./value-objects.md"
+casts:
+  organization: "app/Casts/{ModelName}/ or app/Casts/ for shared"
 ---
 
 # Requerimientos Técnicos Laravel
@@ -30,7 +32,7 @@ value_objects:
 
 Convenciones técnicas y arquitectónicas para desarrollo Laravel. Define estándares de código, arquitectura, base de datos, APIs y testing que deben aplicarse en todos los proyectos.
 
-**Versión 3.1**: criterios de decisión para Value Objects, tabla comparativa, ejemplo mínimo y referencia a documentación completa en [`value-objects.md`](./value-objects.md).
+**Versión 3.1**: criterios de decisión para Value Objects, tabla comparativa, ejemplo mínimo y referencia a documentación completa en [`value-objects.md`](value-objects.md).
 
 ---
 
@@ -58,7 +60,7 @@ Convenciones técnicas y arquitectónicas para desarrollo Laravel. Define están
 
 ### Arquitectura de Módulos
 
-**Referencia completa**: ver [`modules.md`](./modules.md) para la especificación detallada.
+**Referencia completa**: ver [`modules.md`](modules.md) para la especificación detallada.
 
 Los módulos se comunican mediante **dos mecanismos complementarios** con roles semánticos claros:
 
@@ -112,9 +114,9 @@ final readonly class OrderConfirmedEvent
 ### Clases y Métodos
 
 - Todas las clases deben ser `final` (sin métodos `protected`)
-- Controllers y Services: **un solo método público** (single responsibility)
+- Controllers y Actions: **un solo método público** (single responsibility)
 - Métodos públicos: **nunca reciben ni devuelven arrays**, solo objetos Spatie Laravel Data/Value Objects
-- Lógica de negocio: reside en clases Service, no en Controllers
+- Lógica de negocio: reside en clases Action, no en Controllers
 
 ### Modelos Eloquent
 
@@ -124,7 +126,7 @@ final readonly class OrderConfirmedEvent
 
 ### Value Objects y Spatie Laravel Data
 
-**📖 Para ejemplos completos y patrones de implementación, ver [`value-objects.md`](./value-objects.md)**
+**📖 Para ejemplos completos y patrones de implementación, ver [`value-objects.md`](value-objects.md)**
 
 - **Implementar Value Objects de forma temprana** en el desarrollo (sugerir o implementar desde el inicio)
 - Value Objects deben implementar `Wireable` (para uso en Livewire)
@@ -133,6 +135,9 @@ final readonly class OrderConfirmedEvent
 - **Organización**: Value Objects se organizan en `app/ValueObjects/{ModelName}/`
     - Ejemplo: `app/ValueObjects/Product/PriceValueObject.php`
     - Value Objects compartidos (ej: `Money`, `Quantity`) van directamente en `app/ValueObjects/`
+- **Organización de Casts**: Los Casts se organizan en `app/Casts/{ModelName}/`
+    - Ejemplo: `app/Casts/Product/PriceCast.php`
+    - Casts compartidos (ej: `MoneyCast`, `QuantityCast`) van directamente en `app/Casts/`
 
 #### Criterios para Usar Value Objects
 
@@ -217,7 +222,7 @@ final readonly class Money implements Wireable
 - `final readonly`: inmutabilidad garantizada
 - Constructor valida invariantes (no permite estado inválido)
 - `Wireable`: compatibilidad con Livewire
-- **Para implementación completa con Cast, testing y métodos de dominio**: ver [`value-objects.md`](./value-objects.md)
+- **Para implementación completa con Cast, testing y métodos de dominio**: ver [`value-objects.md`](value-objects.md)
 
 ---
 
@@ -332,7 +337,7 @@ Comandos sugeridos (ejecutar desde el root del proyecto):
 
 - Asumo que Sail está instalado y configurado en este repositorio y que `vendor/bin/sail` es el entrypoint correcto.
 - Asumo que Laravel Modules (`nwidart/laravel-modules`) está instalado y sigue la convención `Modules/{ModuleName}/...`.
-- Asumo que las reglas de comunicación entre módulos definidas en [`modules.md`](./modules.md) son obligatorias para todo el proyecto.
+- Asumo que las reglas de comunicación entre módulos definidas en [`modules.md`](modules.md) son obligatorias para todo el proyecto.
 
 ---
 

@@ -21,12 +21,12 @@ tags:
 - **Value Objects (VO)** encapsulan lógica de negocio, garantizan invariantes y aportan semántica al dominio
 - **Patrón completo**: VO (`final readonly`, `Wireable`) + Eloquent Cast + Unit/Feature tests
 - **Organización**: `app/ValueObjects/{ModelName}/` para VOs específicos, `app/ValueObjects/` para compartidos
-- **Criterios de decisión**: consultar tabla comparativa en [`conventions.md`](./conventions.md)
+- **Criterios de decisión**: consultar tabla comparativa en [`conventions.md`](conventions.md)
 - **Tres patrones base**: `Money` (operaciones aritméticas), `PhoneNumber` (normalización), `Stock` (flujo de estado)
 
 ## Resumen
 
-Ejemplos completos de implementación de Value Objects en Laravel con Eloquent Casts, Livewire Wireable y testing con Pest. Complementa los criterios definidos en [`conventions.md`](./conventions.md).
+Ejemplos completos de implementación de Value Objects en Laravel con Eloquent Casts, Livewire Wireable y testing con Pest. Complementa los criterios definidos en [`conventions.md`](conventions.md).
 
 ---
 

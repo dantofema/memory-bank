@@ -5,7 +5,7 @@
 ### 1. Mapa Base - IGN Argentina
 Se actualizó el mapa base para utilizar los servicios del Instituto Geográfico Nacional (IGN) de Argentina.
 
-**Archivo modificado**: `src/services/constants.ts`
+**Archivo modificado**: `src/s/constants.ts`
 - **Antigua URL**: OpenStreetMap (`https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png`)
 - **Nueva URL**: IGN Argentina TMS (`https://wms.ign.gob.ar/geoserver/gwc/service/tms/1.0.0/mapabase_gris@EPSG%3A3857@png/{z}/{x}/{-y}.png`)
 - **Servicio**: TMS (Tile Map Service) del IGN
