@@ -11,7 +11,7 @@ default_tags:
   - module-scoped
   - strict-typing
 related_docs:
-  - requirements: "./requirements.md"
+  - conventions: "./conventions.md"
 ---
 
 # Planificación de Tareas Laravel
@@ -20,7 +20,7 @@ related_docs:
 
 Framework de planificación optimizada para agentes IA que ejecutan tareas de desarrollo Laravel. Proporciona templates estandarizados, sistema de tags y ejemplos prácticos para generar planes estructurados y reproducibles.
 
-**Nota**: Para convenciones técnicas y arquitectónicas del proyecto, consultar [requirements.md](./requirements.md).
+**Nota**: Para convenciones técnicas y arquitectónicas del proyecto, consultar [conventions.md](conventions.md).
 
 ---
 
@@ -47,10 +47,10 @@ Este documento **NO implementa código**. Su propósito es:
 
 ## Flujo de Uso
 
-1. **Agente IA o Developer** → Lee este documento y [requirements.md](./requirements.md)
+1. **Agente IA o Developer** → Lee este documento y [conventions.md](conventions.md)
 2. **Genera Plan** → Usando templates y convenciones
 3. **Otro Proceso** → Implementa el plan (humano o automatizado)
-4. **Validación** → Ejecuta checklist de calidad definido en requirements.md
+4. **Validación** → Ejecuta checklist de calidad definido en conventions.md
 
 ---
 
@@ -223,5 +223,5 @@ notes: "Usar DTO para inputs y Resource API para outputs; Controllers con un sol
 
 - Para añadir una nueva tag, editar la sección `# Sistema de Tags` y actualizar `default_tags` en el frontmatter si es recurrente.
 - Documentar cualquier cambio en templates en este archivo.
-- Mantener sincronizadas las referencias a [requirements.md](./requirements.md).
+- Mantener sincronizadas las referencias a [conventions.md](conventions.md).
 

@@ -55,6 +55,59 @@ Convenciones técnicas y arquitectónicas para desarrollo Laravel. Define están
 
 ## Arquitectura y Diseño
 
+### Arquitectura de Módulos
+
+**Referencia completa**: ver [`modules.md`](./modules.md) para la especificación detallada.
+
+Los módulos se comunican mediante **dos mecanismos complementarios** con roles semánticos claros:
+
+#### 1. Interfaces (Commands / Queries) - Comunicación Síncrona
+
+**Cuándo usar**: cuando un módulo necesita una **respuesta inmediata y determinista**.
+
+- Representan capacidades, validaciones o decisiones del negocio
+- Son sincrónicas, fuertemente tipadas y explícitas
+- **No exponen modelos internos** ni detalles de persistencia
+- Fallan inmediatamente y propagan el error al llamador
+
+**Ejemplo**:
+```php
+// Catalog expone capacidad de verificar stock
+interface CheckProductAvailabilityInterface
+{
+    public function check(ProductId $productId, Quantity $quantity): AvailabilityResult;
+}
+```
+
+#### 2. Eventos de Dominio - Comunicación Asíncrona
+
+**Cuándo usar**: para **notificar que un hecho relevante del negocio ya ocurrió**.
+
+- Son señales inmutables, unidireccionales y sin valor de retorno
+- **No influyen en decisiones de negocio** ni en el control del flujo
+- Habilitan efectos secundarios: notificaciones, integraciones, reportes, auditoría
+- Los consumidores deben ser idempotentes y tolerar duplicados
+
+**Ejemplo**:
+```php
+// Order emite evento después de confirmar la orden
+final readonly class OrderConfirmedEvent
+{
+    public function __construct(
+        public OrderId $orderId,
+        public Carbon $confirmedAt,
+    ) {}
+}
+```
+
+#### Reglas Obligatorias
+
+1. ✅ **El estado del negocio se decide mediante interfaces, nunca mediante eventos**
+2. ✅ **Los eventos comunican hechos del pasado; las interfaces gobiernan el presente**
+3. ✅ **Los módulos core emiten eventos; los módulos periféricos los consumen**
+4. ✅ **Los eventos no deben incluir datos sensibles**
+5. ✅ **Interfaces nunca devuelven modelos Eloquent** (usar Data objects o Value Objects)
+
 ### Clases y Métodos
 
 - Todas las clases deben ser `final` (sin métodos `protected`)
@@ -279,7 +332,8 @@ Comandos sugeridos (ejecutar desde el root del proyecto):
 # Supuestos
 
 - Asumo que Sail está instalado y configurado en este repositorio y que `vendor/bin/sail` es el entrypoint correcto.
-- Asumo que Laravel Modules sigue la convención `Modules/{ModuleName}/...`.
+- Asumo que Laravel Modules (`nwidart/laravel-modules`) está instalado y sigue la convención `Modules/{ModuleName}/...`.
+- Asumo que las reglas de comunicación entre módulos definidas en [`modules.md`](./modules.md) son obligatorias para todo el proyecto.
 
 ---
 

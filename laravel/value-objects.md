@@ -5,7 +5,7 @@ author: "Alejandro Leone"
 last_updated: "2025-12-16"
 purpose: "Detailed examples and patterns for implementing Value Objects in Laravel"
 related_docs:
-  - requirements: "./requirements.md"
+  - requirements: "./conventions.md"
   - testing: "./pest.md"
 tags:
   - value-objects
@@ -18,7 +18,7 @@ tags:
 
 ## Resumen
 
-Ejemplos completos de implementación de Value Objects en Laravel con Eloquent Casts, Livewire Wireable y testing con Pest. Complementa los criterios definidos en [requirements.md](./requirements.md).
+Ejemplos completos de implementación de Value Objects en Laravel con Eloquent Casts, Livewire Wireable y testing con Pest. Complementa los criterios definidos en [requirements.md](conventions.md).
 
 ---
 
