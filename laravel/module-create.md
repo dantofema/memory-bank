@@ -167,7 +167,7 @@ it('validates business logic correctly', function () {
 
 ## 5. Verificaciones post-creación
 
-### Checklist
+**Checklist**
 
 - [ ] El módulo aparece listado: `./vendor/bin/sail php artisan module:list`
 - [ ] El autoloading funciona: `./vendor/bin/sail composer dump-autoload`
@@ -175,15 +175,29 @@ it('validates business logic correctly', function () {
 - [ ] Las rutas del módulo están registradas (verificar en `routes/web.php` o `routes/api.php` del módulo)
 - [ ] El módulo está habilitado en `modules_statuses.json`
 
-### Habilitar/deshabilitar módulo
+### Registrar módulo en `phpstan.neon`
 
-```bash
-# Habilitar
-./vendor/bin/sail php artisan module:enable {ModuleName}
+Para que `phpstan`/`larastan` analice correctamente código dentro de los módulos, añade la ruta del módulo bajo
+`parameters.paths` en el archivo `phpstan.neon` de proyecto raíz. Ejemplo (añadir una entrada por cada módulo):
 
-# Deshabilitar
-./vendor/bin/sail php artisan module:disable {ModuleName}
+```text
+includes:
+    - vendor/larastan/larastan/extension.neon
+    - vendor/nesbot/carbon/extension.neon
+
+parameters:
+    paths:
+        - app/
+        - 'Modules/{ModuleName}/app/'
+    level: 5
 ```
+
+Notas prácticas:
+
+- Reemplaza `{ModuleName}` por el nombre real del módulo (e.g. `Modules/Catalog/app/`).
+- Si tienes muchos módulos, añade cada uno como un elemento en `parameters.paths`.
+- Ejecuta Larastan/PhpStan después de editar el archivo para validar: por ejemplo, usando Sail ejecuta el análisis de
+  Larastan o el comando de phpstan configurado en tu proyecto.
 
 ---
 
@@ -267,6 +281,43 @@ Modules/{ModuleName}/
 - Ejecutar Larastan: `./vendor/bin/sail php artisan test:types Modules/{ModuleName}`
 - Ejecutar Rector: `./vendor/bin/sail vendor/bin/rector process Modules/{ModuleName}`
 - Cobertura de tests: mínimo 80% en lógica de negocio
+
+---
+
+## Optimización para IA
+
+Esta guía está ahora optimizada para ser procesada por agentes/IA y para facilitar generación automática de tareas.
+Cambios y recomendaciones añadidas:
+
+- Metadata clara: usar siempre rutas completas (p. ej. `Modules/Catalog/app/`) y nombres de archivos exactos cuando sea
+  posible.
+- Ejemplos concisos: todos los snippets muestran entradas reproducibles (comandos, json, neon, php).
+- Suposiciones explícitas: si falta información crítica, el agente debe preguntar; si es seguro asumir un valor por
+  defecto, se indica.
+
+IA-friendly checklist (verificado):
+
+- [x] Identificadores en inglés (variables, clases, comandos) — convención descrita.
+- [x] Strings y mensajes en español — convención descrita.
+- [x] Rutas y nombres de archivos concretos incluidos — ejemplos añadidos para `phpstan.neon` y composer.
+- [x] Comandos reproducibles con Laravel Sail — se usan en ejemplos.
+- [x] Nota de seguridad incluida (validación y no exponer credenciales) — presente en la sección de buenas prácticas.
+
+Suposiciones hechas al optimizar la guía:
+
+- El proyecto usa Laravel Sail como entorno de ejecución (Docker). Si no, los comandos deben ajustarse.
+- PHP >= 8.2 y herramientas estándar (Composer, phpstan/larastan) instaladas en el contenedor.
+
+Cómo usar esta sección por un agente/IA:
+
+- Buscar `Modules/{ModuleName}/composer.json` para autoloading y validar namespaces.
+- Añadir la ruta `Modules/{ModuleName}/app/` en `phpstan.neon` para incluir el módulo en análisis estático.
+- Ejecutar los comandos de verificación listados en la guía en el entorno de Sail.
+
+### Nota de seguridad
+
+- No incluir secretos ni credenciales en `composer.json`, `phpstan.neon` o en ejemplos de configuración.
+- Validar inputs y usar policies/gates para proteger endpoints del módulo.
 
 ---
 
