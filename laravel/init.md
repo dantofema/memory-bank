@@ -31,7 +31,7 @@ php artisan sail:install
 
 ### 2. Habilitar Xdebug (opcional pero recomendado)
 
-**Configuración en `.env`**: 
+**Configuración en `.env`**:
 
 ```bash
 SAIL_XDEBUG_MODE=develop,debug
@@ -44,7 +44,9 @@ SAIL_XDEBUG_MODE=develop,debug
 ./vendor/bin/sail up -d
 ```
 
-**Nota IA**: Xdebug permite debugging paso a paso con breakpoints en el IDE. El modo `develop` habilita características de desarrollo, y `debug` activa el debugging remoto. Útil para debugging complejo pero puede ralentizar la ejecución; desactivar en producción.
+**Nota IA**: Xdebug permite debugging paso a paso con breakpoints en el IDE. El modo `develop` habilita características
+de desarrollo, y `debug` activa el debugging remoto. Útil para debugging complejo pero puede ralentizar la ejecución;
+desactivar en producción.
 
 ### 3. Migraciones y datos iniciales
 
@@ -166,8 +168,6 @@ return RectorConfig::configure()
 
 ---
 
-
-
 ## Framework Frontend/Admin
 
 ### FilamentPHP 4
@@ -200,7 +200,8 @@ public function panel(Panel $panel): Panel
 }
 ```
 
-**Nota IA**: El modo SPA mejora la experiencia de usuario al eliminar recargas de página. El perfil permite a los usuarios gestionar su cuenta. El Environment Indicator previene errores al identificar visualmente el entorno activo.
+**Nota IA**: El modo SPA mejora la experiencia de usuario al eliminar recargas de página. El perfil permite a los
+usuarios gestionar su cuenta. El Environment Indicator previene errores al identificar visualmente el entorno activo.
 
 **Plugin Environment Indicator**:
 
@@ -329,8 +330,6 @@ como lo haría un usuario real en un navegador.
 
 ## Herramientas de Desarrollo Laravel
 
-
-
 ### Laravel Modules (Arquitectura modular)
 
 **Instalación**:
@@ -346,48 +345,51 @@ Agregar la siguiente configuración en la sección `extra`:
 
 ```json
 "extra": {
-    "laravel": {
-        "dont-discover": []
-    },
-    "merge-plugin": {
-        "include": [
-            "Modules/*/composer.json"
-        ]
-    }
+"laravel": {
+"dont-discover": []
+},
+"merge-plugin": {
+"include": [
+"Modules/*/composer.json"
+]
+}
 },
 ```
 
 En `phpunit.xml` agregar los siguientes testsuite y source:
+
 ```xml
-  <testsuites>
-        <testsuite name="Unit">
-            <directory>tests/Unit</directory>
-        </testsuite>
-        <testsuite name="Feature">
-            <directory>tests/Feature</directory>
-        </testsuite>
 
-        <testsuite name="Modules">
-            <directory>./Modules/*/tests/Feature</directory>
-            <directory>./Modules/*/tests/Unit</directory>
-        </testsuite>
+<testsuites>
+    <testsuite name="Unit">
+        <directory>tests/Unit</directory>
+    </testsuite>
+    <testsuite name="Feature">
+        <directory>tests/Feature</directory>
+    </testsuite>
 
-    </testsuites>
-    <source>
-        <include>
-            <directory>app</directory>
-            <directory>./Modules</directory>
-        </include>
+    <testsuite name="Modules">
+        <directory>./Modules/*/tests/Feature</directory>
+        <directory>./Modules/*/tests/Unit</directory>
+    </testsuite>
 
-        <exclude>
-            <directory>./Modules/*/config</directory>
-            <directory>./Modules/*/database</directory>
-            <directory>./Modules/*/resources</directory>
-            <directory>./Modules/*/routes</directory>
-            <directory>./Modules/*/tests</directory>
-        </exclude>
-    </source>
+</testsuites>
+<source>
+<include>
+    <directory>app</directory>
+    <directory>./Modules</directory>
+</include>
+
+<exclude>
+    <directory>./Modules/*/config</directory>
+    <directory>./Modules/*/database</directory>
+    <directory>./Modules/*/resources</directory>
+    <directory>./Modules/*/routes</directory>
+    <directory>./Modules/*/tests</directory>
+</exclude>
+</source>
 ```
+
 En `Pest.php` agregar el siguiente in() '../Modules/*/tests/Feature' para que lea los tests:
 
 ```php
@@ -396,13 +398,40 @@ pest()->extend(Tests\TestCase::class)
     ->in('Feature', '../Modules/*/tests/Feature');
 ```
 
+Agregar `composer.json` en la raíz de `Modules/` con el siguiente contenido:
+
+```json
+{
+  "name": "dantofema/{module_name}",
+  "description": "Módulo {module_name} para la aplicación Laravel",
+  "type": "laravel-module",
+  "license": "MIT",
+  "require": {
+    "php": "^8.2"
+  },
+  "require-dev": {},
+  "autoload": {
+    "psr-4": {
+      "Modules\\Catalog\\": "app/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Modules\\Catalog\\Tests\\": "tests/"
+    }
+  }
+}
+```
+
 **Regenerar autoload**:
 
 ```bash
 ./vendor/bin/sail composer dump-autoload
 ```
 
-**Nota IA**: Laravel Modules permite organizar la aplicación en módulos independientes y reutilizables. Cada módulo puede contener sus propios controladores, modelos, vistas, rutas y migraciones. Ideal para aplicaciones grandes con múltiples dominios o funcionalidades bien delimitadas.
+**Nota IA**: Laravel Modules permite organizar la aplicación en módulos independientes y reutilizables. Cada módulo
+puede contener sus propios controladores, modelos, vistas, rutas y migraciones. Ideal para aplicaciones grandes con
+múltiples dominios o funcionalidades bien delimitadas.
 
 ---
 
@@ -413,56 +442,6 @@ pest()->extend(Tests\TestCase::class)
 ```bash
 ./vendor/bin/sail composer require spatie/laravel-data
 ```
-
-**Ejemplo básico** (`app/Data/UserData.php`):
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\Data;
-
-use Spatie\LaravelData\Data;
-
-final readonly class UserData extends Data
-{
-    public function __construct(
-        public string $name,
-        public string $email,
-        public ?string $phone = null,
-    ) {}
-}
-
-// Uso:
-$data = UserData::from(['name' => 'Juan', 'email' => 'juan@example.com']);
-$data = UserData::from($request); // Desde Request
-$data = UserData::from($model);   // Desde Model
-```
-
-**Integración con Livewire**:
-
-```php
-use Livewire\Wireable;
-
-final readonly class UserData extends Data implements Wireable
-{
-    // Automáticamente serializable en componentes Livewire
-}
-
-// En componente:
-public UserData $userData;
-```
-
-**Nota IA**: Usar Data objects para:
-- **Props de Livewire**: Tipado fuerte, validación automática
-- **Respuestas de API**: Transformación JSON consistente
-- **Commands/Jobs**: Payloads inmutables y serializables
-- **Form Requests**: Casting automático a objetos tipados
-
-Beneficios: inmutabilidad (`readonly`), validación integrada, casting automático, compatible con Larastan nivel 10. Documentación: https://spatie.be/docs/laravel-data
-
----
 
 ### Laravel Boost (MCP Server - Herramientas IA)
 
