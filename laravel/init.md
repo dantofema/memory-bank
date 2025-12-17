@@ -356,39 +356,7 @@ Agregar la siguiente configuración en la sección `extra`:
 },
 ```
 
-En `phpunit.xml` agregar los siguientes testsuite y source:
-
-```xml
-
-<testsuites>
-    <testsuite name="Unit">
-        <directory>tests/Unit</directory>
-    </testsuite>
-    <testsuite name="Feature">
-        <directory>tests/Feature</directory>
-    </testsuite>
-
-    <testsuite name="Modules">
-        <directory>./Modules/*/tests/Feature</directory>
-        <directory>./Modules/*/tests/Unit</directory>
-    </testsuite>
-
-</testsuites>
-<source>
-<include>
-    <directory>app</directory>
-    <directory>./Modules</directory>
-</include>
-
-<exclude>
-    <directory>./Modules/*/config</directory>
-    <directory>./Modules/*/database</directory>
-    <directory>./Modules/*/resources</directory>
-    <directory>./Modules/*/routes</directory>
-    <directory>./Modules/*/tests</directory>
-</exclude>
-</source>
-```
+**Configuración de tests para módulos**:
 
 En `Pest.php` agregar el siguiente in() '../Modules/*/tests/Feature' para que lea los tests:
 
@@ -396,31 +364,6 @@ En `Pest.php` agregar el siguiente in() '../Modules/*/tests/Feature' para que le
 pest()->extend(Tests\TestCase::class)
     ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
     ->in('Feature', '../Modules/*/tests/Feature');
-```
-
-Agregar `composer.json` en la raíz de `Modules/` con el siguiente contenido:
-
-```json
-{
-  "name": "dantofema/{module_name}",
-  "description": "Módulo {module_name} para la aplicación Laravel",
-  "type": "laravel-module",
-  "license": "MIT",
-  "require": {
-    "php": "^8.2"
-  },
-  "require-dev": {},
-  "autoload": {
-    "psr-4": {
-      "Modules\\Catalog\\": "app/"
-    }
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "Modules\\Catalog\\Tests\\": "tests/"
-    }
-  }
-}
 ```
 
 **Regenerar autoload**:
