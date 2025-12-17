@@ -26,7 +26,8 @@ tools:
 
 Agente responsable de **implementar las entradas al sistema**: HTTP, API y Backoffice (Filament).
 
-**Principio fundamental**: Este agente traduce requests de UI o API en llamadas a Actions. **No contiene lógica de negocio**.
+**Principio fundamental**: Este agente traduce requests de UI o API en llamadas a Actions. **No contiene lógica de
+negocio**.
 
 ---
 
@@ -91,6 +92,7 @@ Modules/{ModuleName}/tests/Feature/
 - ❌ Listeners
 
 **❌ Lógica de negocio en Controllers/Filament**:
+
 - No validar reglas de negocio (usar Actions)
 - No acceder directamente a Eloquent (usar Actions que usen Repositories)
 - No calcular ni transformar datos de negocio (usar Actions)
@@ -102,19 +104,23 @@ Modules/{ModuleName}/tests/Feature/
 El Agente D recibe como **input solo lectura**:
 
 **Del Agente A**:
+
 - ✅ Data Objects (para input/output de métodos)
 - ✅ Value Objects (para tipado)
 - ✅ Enums (para opciones y estados)
 
 **Del Agente B**:
+
 - ✅ Actions implementadas (Commands y Queries)
 - ✅ Excepciones de dominio (para manejo de errores)
 
 **Del Agente C**:
+
 - ✅ Factories (solo para tests)
 - ✅ Modelos (solo para entender estructura en Filament, NO acceso directo)
 
 **Restricciones estrictas**:
+
 - ❌ **No puede modificar ningún artefacto de Agentes A, B o C**
 - ❌ **No puede crear nuevos contratos, Actions, Data, VOs o Enums**
 - ❌ **No puede acceder directamente a Eloquent** (debe usar Actions)
@@ -195,6 +201,7 @@ final readonly class ProductController
 ```
 
 **Características obligatorias**:
+
 - ✅ `final readonly class`
 - ✅ Inyección de dependencias: **solo interfaces de Actions** (del Agente B)
 - ✅ Un método público por acción HTTP
@@ -284,6 +291,7 @@ final readonly class ProductController
 ```
 
 **Características obligatorias**:
+
 - ✅ `final readonly class`
 - ✅ Retorna **siempre** `JsonResponse` o `JsonResource` / `ResourceCollection`
 - ✅ Usa API Resources para transformar Data Objects a JSON
@@ -352,6 +360,7 @@ final class CreateProductRequest extends FormRequest
 ```
 
 **Características obligatorias**:
+
 - ✅ `final class extends FormRequest`
 - ✅ Validación **solo de formato y tipos**, no de reglas de negocio
 - ✅ Mensajes en español
@@ -409,6 +418,7 @@ final class ProductResource extends JsonResource
 ```
 
 **Características obligatorias**:
+
 - ✅ `final class extends JsonResource`
 - ✅ Docblock `@mixin` con el Data Object que transforma
 - ✅ Transformar Value Objects a estructuras JSON legibles
@@ -584,6 +594,7 @@ final class ProductResource extends Resource
 ```
 
 **Características obligatorias**:
+
 - ✅ `final class extends Resource`
 - ✅ `$model = null` (no acceso directo a Eloquent)
 - ✅ Formularios con notación de punto para Value Objects (ej: `price.cents`)
@@ -618,7 +629,7 @@ final class CreateProduct extends CreateRecord
     /**
      * Sobrescribe el método de creación para usar Actions.
      */
-    protected function handleRecordCreation(array $data): array
+    public function handleRecordCreation(array $data): array
     {
         /** @var CreateProductInterface $createProduct */
         $createProduct = app(CreateProductInterface::class);
@@ -644,7 +655,7 @@ final class CreateProduct extends CreateRecord
         return ['id' => $productId->value()];
     }
 
-    protected function getRedirectUrl(): string
+    public function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');
     }
@@ -652,6 +663,7 @@ final class CreateProduct extends CreateRecord
 ```
 
 **Características obligatorias**:
+
 - ✅ `final class extends CreateRecord/EditRecord/ListRecords/ViewRecord`
 - ✅ Sobrescribir `handleRecordCreation` o `handleRecordUpdate` para usar Actions
 - ✅ Transformar array de form a Data Objects y Value Objects
@@ -702,6 +714,7 @@ Route::prefix('v1/catalog')
 ```
 
 **Características obligatorias**:
+
 - ✅ Prefijos descriptivos del módulo
 - ✅ Nombres de rutas con namespace del módulo
 - ✅ API siempre versionada (`v1/`, `v2/`, etc.)
@@ -772,6 +785,7 @@ test('falla al crear producto con SKU duplicado', function (): void {
 ```
 
 **Características obligatorias**:
+
 - ✅ Tests descriptivos en español
 - ✅ Patrón Arrange-Act-Assert
 - ✅ Verificar respuestas HTTP (status, redirects, sessions)
@@ -840,6 +854,7 @@ test('api v1 retorna 404 para producto inexistente', function (): void {
 ```
 
 **Características obligatorias**:
+
 - ✅ Usar `postJson`, `getJson` para APIs
 - ✅ Verificar estructura JSON con `assertJsonStructure`
 - ✅ Verificar códigos de estado HTTP (201, 404, 422)
@@ -911,6 +926,7 @@ test('valida campos obligatorios en formulario de creación', function (): void 
 ```
 
 **Características obligatorias**:
+
 - ✅ Usar `Pest\Livewire\livewire()` para testing de Filament
 - ✅ Verificar renderizado de páginas (`assertSuccessful`)
 - ✅ Verificar formularios con `fillForm` y `assertHasNoFormErrors`
@@ -958,6 +974,7 @@ describe('Smoke Tests - Catalog', function (): void {
 ```
 
 **Características obligatorias**:
+
 - ✅ Un test por cada página/vista del módulo
 - ✅ Verificar solo que la página carga (`assertOk`)
 - ✅ Agrupar en `describe` por módulo

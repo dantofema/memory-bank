@@ -26,11 +26,13 @@ tags:
 
 ## Resumen
 
-Ejemplos completos de implementación de Value Objects en Laravel con Eloquent Casts, Livewire Wireable y testing con Pest. Complementa los criterios definidos en [`conventions.md`](conventions.md).
+Ejemplos completos de implementación de Value Objects en Laravel con Eloquent Casts, Livewire Wireable y testing con
+Pest. Complementa los criterios definidos en [`conventions.md`](conventions.md).
 
 ---
 
 ## Patrón Base: Money
+
 **Complejidad**: 🟢 Básico | **Casos de uso**: Montos monetarios, operaciones aritméticas, comparaciones
 
 ### Value Object
@@ -193,7 +195,7 @@ final class Product extends Model
         'price_currency',
     ];
 
-    protected function casts(): array
+    public function casts(): array
     {
         return [
             'price' => MoneyCast::class,
@@ -326,7 +328,9 @@ describe('Money en Eloquent', function () {
 ---
 
 ## Patrón: PhoneNumber
-**Complejidad**: 🟡 Intermedio | **Casos de uso**: Normalización de formato, validación internacional, integración WhatsApp
+
+**Complejidad**: 🟡 Intermedio | **Casos de uso**: Normalización de formato, validación internacional, integración
+WhatsApp
 
 ### Value Object
 
@@ -415,6 +419,7 @@ final readonly class PhoneNumber implements Wireable
 ---
 
 ## Patrón: Stock
+
 **Complejidad**: 🟡 Intermedio | **Casos de uso**: Gestión de inventario, reservas, transiciones de estado con validación
 
 ### Value Object

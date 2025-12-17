@@ -24,9 +24,11 @@ tools:
 ## Resumen
 
 Agente responsable de **implementar la capa de persistencia del módulo**.
-Trabaja sobre los **contratos de repositorio definidos por el Agente A** y utiliza los **Value Objects y Data Objects** creados por el Agente A.
+Trabaja sobre los **contratos de repositorio definidos por el Agente A** y utiliza los **Value Objects y Data Objects**
+creados por el Agente A.
 
-**Principio fundamental**: Este agente define el *cómo* se persiste y recupera la información, nunca el comportamiento del negocio.
+**Principio fundamental**: Este agente define el *cómo* se persiste y recupera la información, nunca el comportamiento
+del negocio.
 
 ---
 
@@ -81,16 +83,19 @@ Modules/{ModuleName}/tests/
 El Agente C recibe como **input obligatorio**:
 
 **Del Agente A**:
+
 - ✅ Contratos de repositorio (`Contracts/Repositories/*`)
 - ✅ Data Objects (`Data/*`)
 - ✅ Value Objects (`ValueObjects/*`)
 - ✅ Enums (`Enums/*`)
 
 **Del Agente B**:
+
 - ✅ Actions implementadas (para entender flujos de negocio)
 - ✅ Excepciones de dominio
 
 **Restricciones estrictas**:
+
 - ❌ **No puede modificar contratos del Agente A**
 - ❌ **No puede modificar Actions del Agente B**
 - ❌ **No puede crear lógica de negocio** (solo persistencia)
@@ -153,7 +158,7 @@ final class Product extends Model
         'is_active',
     ];
 
-    protected function casts(): array
+    public function casts(): array
     {
         return [
             'id' => ProductIdCast::class,
@@ -186,6 +191,7 @@ final class Product extends Model
 ```
 
 **Características obligatorias**:
+
 - ✅ `final class extends Model`
 - ✅ Docblock con `@property` para todas las propiedades (ayuda a PHPStan)
 - ✅ Usar Casts para mapear Value Objects
@@ -253,6 +259,7 @@ final class MoneyCast implements CastsAttributes
 ```
 
 **Características obligatorias**:
+
 - ✅ `final class implements CastsAttributes`
 - ✅ Tipado genérico en docblock: `@implements CastsAttributes<Money, Money>`
 - ✅ Validación de tipos en `get()` y `set()`
@@ -376,6 +383,7 @@ final readonly class ProductRepository implements ProductRepositoryInterface
 ```
 
 **Características obligatorias**:
+
 - ✅ `final readonly class`
 - ✅ Implementa el contrato del Agente A
 - ✅ **Devuelve Data Objects, nunca modelos Eloquent**
@@ -442,6 +450,7 @@ return new class extends Migration
 ```
 
 **Características obligatorias**:
+
 - ✅ Declarar `declare(strict_types=1)`
 - ✅ Tipar `up()` y `down()` con `: void`
 - ✅ **Incluir índices** para columnas que se usan en WHERE, ORDER BY
@@ -520,6 +529,7 @@ final class ProductFactory extends Factory
 ```
 
 **Características obligatorias**:
+
 - ✅ `final class extends Factory`
 - ✅ Docblock: `@extends Factory<Product>`
 - ✅ Usar Value Objects en `definition()`
@@ -825,12 +835,14 @@ Al finalizar, el Agente C debe haber creado:
 ### Entrada del Agente C
 
 **Recibe del Agente A**:
+
 - ✅ Contratos de repositorio
 - ✅ Data Objects
 - ✅ Value Objects
 - ✅ Enums
 
 **Recibe del Agente B**:
+
 - ✅ Actions (para entender flujo de negocio)
 - ✅ Excepciones de dominio
 
@@ -839,12 +851,14 @@ Al finalizar, el Agente C debe haber creado:
 ### Salida del Agente C
 
 **Entrega a Agentes posteriores (D, E...)**:
+
 - ✅ Modelos Eloquent funcionando
 - ✅ Repositorios implementados
 - ✅ Base de datos migrada
 - ✅ Factories disponibles para tests
 
 **Los Agentes posteriores pueden**:
+
 - ✅ Crear Controllers que usen los repositorios
 - ✅ Crear Filament Resources que usen los modelos
 - ✅ Crear Listeners que persistan mediante repositorios
@@ -857,11 +871,13 @@ Al finalizar, el Agente C debe haber creado:
 ### 1. Repositorios Devuelven Data Objects, Nunca Eloquent
 
 ❌ **Nunca**:
+
 ```php
 public function findById(ProductId $id): ?Product // ❌ Eloquent
 ```
 
 ✅ **Siempre**:
+
 ```php
 public function findById(ProductId $id): ?ProductData // ✅ Data Object
 ```
@@ -871,12 +887,14 @@ public function findById(ProductId $id): ?ProductData // ✅ Data Object
 ### 2. Modelos Usan Casts para Value Objects
 
 ❌ **Nunca**:
+
 ```php
 // ❌ Acceder directamente a price_cents
 $product->price_cents;
 ```
 
 ✅ **Siempre**:
+
 ```php
 // ✅ Usar Value Object mediante Cast
 $product->price->cents; // Money VO
@@ -887,12 +905,14 @@ $product->price->cents; // Money VO
 ### 3. Migraciones Incluyen Índices
 
 ❌ **Nunca**:
+
 ```php
 $table->string('sku');
 // ❌ Falta índice
 ```
 
 ✅ **Siempre**:
+
 ```php
 $table->string('sku')->unique();
 $table->index('sku'); // ✅ Índice explícito
@@ -903,6 +923,7 @@ $table->index('sku'); // ✅ Índice explícito
 ### 4. No Hay Lógica de Negocio en Repositorios
 
 ❌ **Nunca**:
+
 ```php
 public function create(ProductData $data): ProductId
 {
@@ -916,6 +937,7 @@ public function create(ProductData $data): ProductId
 ```
 
 ✅ **Siempre**:
+
 ```php
 public function create(ProductData $data): ProductId
 {
