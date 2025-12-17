@@ -11,7 +11,7 @@ tools:
   - rector
   - pint
   - filament
-phpstan_level: 5
+phpstan_level: 6
 context:
   project_type: "Laravel 12 with Filament v4, Livewire v3, Pest v4"
   team_size: 1
