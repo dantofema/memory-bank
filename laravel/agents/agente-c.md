@@ -32,6 +32,28 @@ del negocio.
 
 ---
 
+## Input del Agente
+
+Este agente es **agnóstico del proyecto** y recibe contexto de:
+
+- **Task específica**: define QUÉ modelos, repositorios y migraciones crear
+- **Project definition**: define el contexto de infraestructura (DB, índices, etc.)
+- **Domain definition**: define estructura de datos y relaciones del dominio
+- **Output del Agente A**: contratos de repositorio, Data Objects y Value Objects
+- **Output del Agente B**: Actions que usarán los repositorios
+
+El agente proporciona la **metodología** (el CÓMO implementar persistencia).  
+La task proporciona el **contexto** (el QUÉ persistir específicamente y cómo).
+
+### Ejemplos en este documento
+
+Los ejemplos usan "Catalog/Product" como **placeholder genérico** para ilustrar la metodología.  
+En tu task, **reemplázalos con las entidades de tu dominio específico** (ej: Order, Payment, User).
+
+**Ver**: `laravel/AGENTS_ARCHITECTURE.md` para entender el sistema completo.
+
+---
+
 ## Alcance Estricto
 
 ### ✅ Archivos Permitidos

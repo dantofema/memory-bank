@@ -31,6 +31,28 @@ negocio**.
 
 ---
 
+## Input del Agente
+
+Este agente es **agnóstico del proyecto** y recibe contexto de:
+
+- **Task específica**: define QUÉ endpoints, controllers y recursos Filament crear
+- **Project definition**: define el contexto de UI/UX, roles y permisos
+- **Domain definition**: define flujos de usuario y validaciones de entrada
+- **Output del Agente A**: Data Objects para input/output
+- **Output del Agente B**: Actions a las que delegar la lógica
+
+El agente proporciona la **metodología** (el CÓMO implementar entradas del sistema).  
+La task proporciona el **contexto** (el QUÉ exponer y cómo).
+
+### Ejemplos en este documento
+
+Los ejemplos usan "Catalog/Product" como **placeholder genérico** para ilustrar la metodología.  
+En tu task, **reemplázalos con las entidades de tu dominio específico** (ej: Order, Payment, User).
+
+**Ver**: `laravel/AGENTS_ARCHITECTURE.md` para entender el sistema completo.
+
+---
+
 ## Alcance Estricto
 
 ### ✅ Archivos Permitidos

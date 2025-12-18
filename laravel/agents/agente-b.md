@@ -28,6 +28,27 @@ Trabaja exclusivamente sobre los **contratos, Data y Value Objects definidos por
 
 ---
 
+## Input del Agente
+
+Este agente es **agnóstico del proyecto** y recibe contexto de:
+
+- **Task específica**: define QUÉ Actions implementar y sus reglas de negocio
+- **Project definition**: define el contexto del negocio y requisitos funcionales
+- **Domain definition**: define reglas de negocio específicas del dominio
+- **Output del Agente A**: contratos, Data Objects y Value Objects a implementar
+
+El agente proporciona la **metodología** (el CÓMO implementar Actions).  
+La task proporciona el **contexto** (el QUÉ implementar específicamente y las reglas de negocio).
+
+### Ejemplos en este documento
+
+Los ejemplos usan "Catalog/Product" como **placeholder genérico** para ilustrar la metodología.  
+En tu task, **reemplázalos con las entidades de tu dominio específico** (ej: Order, Payment, User).
+
+**Ver**: `laravel/AGENTS_ARCHITECTURE.md` para entender el sistema completo.
+
+---
+
 ## Alcance Estricto
 
 ### ✅ Archivos Permitidos

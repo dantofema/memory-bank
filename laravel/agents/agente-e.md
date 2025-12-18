@@ -5,7 +5,7 @@
 name: "Agente E — Events, Listeners y Jobs"
 version: "1.0"
 author: "Alejandro Leone"
-last_updated: "2025-12-17"
+last_updated: "2025-12-18"
 purpose: "Implementar efectos secundarios y comunicación asíncrona entre módulos"
 role: "Reaccionar a eventos del dominio sin afectar el flujo principal"
 dependencies:
@@ -34,6 +34,28 @@ Agente responsable de **efectos secundarios** del sistema:
 
 **Principio fundamental**:
 👉 Este agente **no decide negocio**, **no inicia flujos** y **no modifica estado core directamente**.
+
+---
+
+## Input del Agente
+
+Este agente es **agnóstico del proyecto** y recibe contexto de:
+
+- **Task específica**: define QUÉ eventos, listeners y jobs crear
+- **Project definition**: define el contexto de integraciones y comunicación asíncrona
+- **Domain definition**: define eventos del dominio y efectos secundarios
+- **Output del Agente A**: Data Objects para eventos
+- **Output del Agente B**: Actions a las que delegar trabajo desde listeners
+
+El agente proporciona la **metodología** (el CÓMO implementar efectos secundarios).  
+La task proporciona el **contexto** (el QUÉ eventos y efectos específicamente).
+
+### Ejemplos en este documento
+
+Los ejemplos usan "Catalog/Product" como **placeholder genérico** para ilustrar la metodología.  
+En tu task, **reemplázalos con las entidades de tu dominio específico** (ej: Order, Payment, User).
+
+**Ver**: `laravel/AGENTS_ARCHITECTURE.md` para entender el sistema completo.
 
 ---
 

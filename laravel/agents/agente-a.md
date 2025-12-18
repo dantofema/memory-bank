@@ -27,6 +27,26 @@ Produce **solo tipos y contratos**, sin ninguna implementación de negocio ni in
 
 ---
 
+## Input del Agente
+
+Este agente es **agnóstico del proyecto** y recibe contexto de:
+
+- **Task específica**: define QUÉ contratos, Data, VOs y Enums crear para el proyecto
+- **Project definition**: define el contexto del negocio y stack tecnológico
+- **Domain definition**: define entidades y reglas del dominio específico
+
+El agente proporciona la **metodología** (el CÓMO crear tipos y contratos).  
+La task proporciona el **contexto** (el QUÉ crear específicamente).
+
+### Ejemplos en este documento
+
+Los ejemplos usan "Catalog/Product" como **placeholder genérico** para ilustrar la metodología.  
+En tu task, **reemplázalos con las entidades de tu dominio específico** (ej: Order, Payment, User).
+
+**Ver**: `laravel/AGENTS_ARCHITECTURE.md` para entender el sistema completo.
+
+---
+
 ## Alcance Estricto
 
 ### ✅ Archivos Permitidos
