@@ -333,6 +333,46 @@ it('ejecuta el listener al disparar el evento', function () {
 
 ---
 
+## Validación de Calidad
+
+### Checklist Obligatorio
+
+Antes de considerar completa la tarea:
+
+1. ✅ **PHPStan level 6** sin errores
+   ```bash
+   ./vendor/bin/sail composer run phpstan
+   ```
+
+2. ✅ **Pint** ejecutado
+   ```bash
+   ./vendor/bin/sail bin pint --dirty
+   ```
+
+3. ✅ **Rector** ejecutado (si aplica)
+   ```bash
+   ./vendor/bin/sail composer run rector
+   ```
+
+4. ✅ **Tests con cobertura del 100%**
+   ```bash
+   ./vendor/bin/sail test --filter=Events
+   ./vendor/bin/sail test --filter=Listeners
+   ./vendor/bin/sail test --filter=Jobs
+   ```
+
+5. ✅ **Verificar colas funcionando**
+   ```bash
+   ./vendor/bin/sail artisan queue:work --once
+   ```
+
+6. ✅ **Verificar eventos registrados**
+   ```bash
+   ./vendor/bin/sail artisan event:list
+   ```
+
+---
+
 ## Cuándo usar Agente E
 
 Usalo **solo si**:
@@ -343,4 +383,32 @@ Usalo **solo si**:
 * Hay comunicación entre módulos
 
 ❌ No lo uses para CRUD, validaciones o lógica principal.
+
+---
+
+## Supuestos
+
+- Asumo que Laravel Modules está instalado y configurado
+- Asumo que Laravel Sail está disponible para ejecutar comandos
+- Asumo que los contratos del Agente A están completos
+- Asumo que las Actions del Agente B están finalizadas
+- Asumo que el proyecto sigue las convenciones de `conventions.md`
+- Asumo que las colas están configuradas (Redis, database, etc.)
+
+---
+
+## Referencias
+
+- **Convenciones del proyecto**: [`conventions.md`](../conventions/conventions.md)
+- **Agente A (Contratos)**: [`agente-a.md`](agente-a.md)
+- **Agente B (Actions)**: [`agente-b.md`](agente-b.md)
+- **Agente C (Persistencia)**: [`agente-c.md`](agente-c.md)
+- **Events**: https://laravel.com/docs/events
+- **Queues**: https://laravel.com/docs/queues
+
+---
+
+**Versión**: 1.0  
+**Última actualización**: 2025-12-17  
+**Autor**: Alejandro Leone
 
