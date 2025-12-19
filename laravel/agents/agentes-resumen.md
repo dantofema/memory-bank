@@ -10,7 +10,8 @@ purpose: "Documentar la división de responsabilidades entre agentes especializa
 
 ## Visión General
 
-La implementación de un módulo se divide en **agentes especializados**, cada uno con un alcance estricto y responsabilidades claramente definidas.
+La implementación de un módulo se divide en **agentes especializados**, cada uno con un alcance estricto y
+responsabilidades claramente definidas.
 
 **Principio fundamental**: Cada agente produce artefactos que el siguiente agente consume, pero **nunca modifica**.
 
@@ -25,7 +26,7 @@ Agente B (Actions)
     ↓
 Agente C (Persistencia)
     ↓
-Agente D (Controllers/Filament)
+Agente D (Controllers/Filament/Livewire)
     ↓
 Agente E (Events/Listeners)
 ```
@@ -35,9 +36,11 @@ Agente E (Events/Listeners)
 ## Agente A — Contratos, Data, Enums y Value Objects
 
 ### 🎯 Propósito
+
 Definir la **frontera pública del módulo** mediante tipos y contratos.
 
 ### 📁 Archivos Permitidos
+
 - ✅ `Contracts/Commands/*` - Interfaces síncronas que modifican estado
 - ✅ `Contracts/Queries/*` - Interfaces síncronas de solo lectura
 - ✅ `Contracts/Repositories/*` - Interfaces de repositorios
@@ -48,6 +51,7 @@ Definir la **frontera pública del módulo** mediante tipos y contratos.
 - ✅ `tests/Unit/Enums/*` - Tests de Enums
 
 ### ⛔ Archivos Prohibidos
+
 - ❌ Actions
 - ❌ Services
 - ❌ Models
@@ -60,19 +64,23 @@ Definir la **frontera pública del módulo** mediante tipos y contratos.
 - ❌ Casts
 
 ### 📤 Salida (Output)
+
 Interfaces, Data Objects, Value Objects, Enums → **Consumidos por Agente B**
 
 ### 📖 Referencia
-[`agent-contracts.md`](agent-contracts.md)
+
+[`agent-contracts.md`](agent-a-contracts.md)
 
 ---
 
 ## Agente B — Actions y Tests Unitarios
 
 ### 🎯 Propósito
+
 Implementar los **casos de uso del módulo** (comportamiento del negocio).
 
 ### 📁 Archivos Permitidos
+
 - ✅ `Actions/Commands/*` - Implementaciones de Commands
 - ✅ `Actions/Queries/*` - Implementaciones de Queries
 - ✅ `Actions/Internal/*` - Actions auxiliares privadas
@@ -80,6 +88,7 @@ Implementar los **casos de uso del módulo** (comportamiento del negocio).
 - ✅ `tests/Unit/Actions/*` - Tests unitarios con mocks
 
 ### ⛔ Archivos Prohibidos
+
 - ❌ Models
 - ❌ Repositories concretos
 - ❌ Controllers
@@ -95,7 +104,9 @@ Implementar los **casos de uso del módulo** (comportamiento del negocio).
 - ❌ Casts
 
 ### 📥 Entrada (Input)
+
 Del Agente A:
+
 - ✅ Contratos (Interfaces)
 - ✅ Data Objects
 - ✅ Value Objects
@@ -104,19 +115,23 @@ Del Agente A:
 **Restricción**: ❌ NO puede modificar nada del Agente A
 
 ### 📤 Salida (Output)
+
 Actions implementadas, Excepciones de dominio → **Consumidos por Agente C y posteriores**
 
 ### 📖 Referencia
-[`agent-actions.md`](agent-actions.md)
+
+[`agent-actions.md`](agent-b-actions.md)
 
 ---
 
 ## Agente C — Repositorios, Modelos Eloquent e Infraestructura de Persistencia
 
 ### 🎯 Propósito
+
 Implementar la **capa de persistencia** y acceso a datos del módulo.
 
 ### 📁 Archivos Permitidos
+
 - ✅ `Models/*` - Modelos Eloquent
 - ✅ `Repositories/*` - Implementaciones de repositorios
 - ✅ `Casts/*` - Eloquent Casts para Value Objects
@@ -127,6 +142,7 @@ Implementar la **capa de persistencia** y acceso a datos del módulo.
 - ✅ `tests/Feature/Repositories/*` - Tests de integración con DB
 
 ### ⛔ Archivos Prohibidos
+
 - ❌ Actions (ya creadas por Agente B)
 - ❌ Controllers
 - ❌ Filament
@@ -138,32 +154,39 @@ Implementar la **capa de persistencia** y acceso a datos del módulo.
 - ❌ Lógica de negocio (va en Actions)
 
 ### 📥 Entrada (Input)
+
 Del Agente A:
+
 - ✅ Contratos de repositorio
 - ✅ Data Objects
 - ✅ Value Objects
 - ✅ Enums
 
 Del Agente B:
+
 - ✅ Actions (para entender flujos)
 - ✅ Excepciones de dominio
 
 **Restricción**: ❌ NO puede modificar nada de Agentes A y B
 
 ### 📤 Salida (Output)
+
 Modelos Eloquent, Repositorios, Migraciones, Factories → **Consumidos por Agente D y posteriores**
 
 ### 📖 Referencia
-[`agent-persistence.md`](agent-persistence.md)
+
+[`agent-persistence.md`](agent-c-persistence.md)
 
 ---
 
 ## Agente D — Controllers y Filament Resources (Puntos de Entrada)
 
 ### 🎯 Propósito
+
 Implementar **puntos de entrada HTTP** y **UI administrativa**.
 
 ### 📁 Archivos Permitidos
+
 - ✅ `Http/Controllers/*` - Controllers HTTP
 - ✅ `Filament/Resources/*` - Recursos de Filament
 - ✅ `Filament/Pages/*` - Páginas personalizadas
@@ -173,6 +196,7 @@ Implementar **puntos de entrada HTTP** y **UI administrativa**.
 - ✅ `tests/Feature/Filament/*` - Tests de UI
 
 ### ⛔ Archivos Prohibidos
+
 - ❌ Lógica de negocio (debe delegar a Actions)
 - ❌ Acceso directo a Eloquent (usar repositorios)
 - ❌ Value Objects nuevos
@@ -181,32 +205,40 @@ Implementar **puntos de entrada HTTP** y **UI administrativa**.
 - ❌ Migrations
 
 ### 📥 Entrada (Input)
+
 Del Agente A:
+
 - ✅ Data Objects (para input/output)
 
 Del Agente B:
+
 - ✅ Actions (para ejecutar casos de uso)
 - ✅ Excepciones de dominio
 
 Del Agente C:
+
 - ✅ Factories (para tests)
 
 **Restricción**: ❌ NO puede modificar nada de Agentes A, B y C
 
 ### 📤 Salida (Output)
+
 Endpoints HTTP funcionales, UI administrativa → **Disponible para usuarios**
 
 ### 📖 Referencia
-[`agent-http.md`](agent-http.md)
+
+[`agent-http.md`](agent-d-http.md)
 
 ---
 
 ## Agente E — Events, Listeners y Jobs (Efectos Secundarios)
 
 ### 🎯 Propósito
+
 Implementar **efectos secundarios** y **comunicación asíncrona** entre módulos.
 
 ### 📁 Archivos Permitidos
+
 - ✅ `Events/*` - Eventos de dominio
 - ✅ `Listeners/*` - Listeners de eventos
 - ✅ `Jobs/*` - Jobs asíncronos
@@ -214,6 +246,7 @@ Implementar **efectos secundarios** y **comunicación asíncrona** entre módulo
 - ✅ `tests/Feature/Listeners/*` - Tests de listeners
 
 ### ⛔ Archivos Prohibidos
+
 - ❌ Lógica de negocio (debe delegar a Actions)
 - ❌ Acceso directo a Eloquent (usar repositorios)
 - ❌ Value Objects nuevos
@@ -222,21 +255,27 @@ Implementar **efectos secundarios** y **comunicación asíncrona** entre módulo
 - ❌ Migrations
 
 ### 📥 Entrada (Input)
+
 Del Agente A:
+
 - ✅ Data Objects
 
 Del Agente B:
+
 - ✅ Actions (para ejecutar desde listeners)
 
 Del Agente C:
+
 - ✅ Repositorios (si necesita persistir)
 
 **Restricción**: ❌ NO puede modificar nada de Agentes A, B y C
 
 ### 📤 Salida (Output)
+
 Sistema de eventos funcional → **Comunicación entre módulos**
 
 ### 📖 Referencia
+
 (Pendiente: `agent-events.md`)
 
 ---
@@ -269,26 +308,26 @@ Sistema de eventos funcional → **Comunicación entre módulos**
 
 ## Tabla Resumen: ¿Quién Hace Qué?
 
-| Artefacto | Agente A | Agente B | Agente C | Agente D | Agente E |
-|-----------|----------|----------|----------|----------|----------|
-| **Contratos (Interfaces)** | ✅ Crea | ❌ | ❌ | ❌ | ❌ |
-| **Data Objects** | ✅ Crea | ❌ | ❌ | ❌ | ❌ |
-| **Value Objects** | ✅ Crea | ❌ | ❌ | ❌ | ❌ |
-| **Enums** | ✅ Crea | ❌ | ❌ | ❌ | ❌ |
-| **Actions** | ❌ | ✅ Implementa | ❌ | ❌ | ❌ |
-| **Excepciones** | ❌ | ✅ Crea | ❌ | ❌ | ❌ |
-| **Modelos Eloquent** | ❌ | ❌ | ✅ Crea | ❌ | ❌ |
-| **Repositories** | ❌ | ❌ | ✅ Implementa | ❌ | ❌ |
-| **Casts** | ❌ | ❌ | ✅ Crea | ❌ | ❌ |
-| **Migrations** | ❌ | ❌ | ✅ Crea | ❌ | ❌ |
-| **Factories** | ❌ | ❌ | ✅ Crea | ❌ | ❌ |
-| **Controllers** | ❌ | ❌ | ❌ | ✅ Crea | ❌ |
-| **Filament Resources** | ❌ | ❌ | ❌ | ✅ Crea | ❌ |
-| **Form Requests** | ❌ | ❌ | ❌ | ✅ Crea | ❌ |
-| **API Resources** | ❌ | ❌ | ❌ | ✅ Crea | ❌ |
-| **Events** | ❌ | ❌ | ❌ | ❌ | ✅ Crea |
-| **Listeners** | ❌ | ❌ | ❌ | ❌ | ✅ Crea |
-| **Jobs** | ❌ | ❌ | ❌ | ❌ | ✅ Crea |
+| Artefacto                  | Agente A | Agente B     | Agente C     | Agente D | Agente E |
+|----------------------------|----------|--------------|--------------|----------|----------|
+| **Contratos (Interfaces)** | ✅ Crea   | ❌            | ❌            | ❌        | ❌        |
+| **Data Objects**           | ✅ Crea   | ❌            | ❌            | ❌        | ❌        |
+| **Value Objects**          | ✅ Crea   | ❌            | ❌            | ❌        | ❌        |
+| **Enums**                  | ✅ Crea   | ❌            | ❌            | ❌        | ❌        |
+| **Actions**                | ❌        | ✅ Implementa | ❌            | ❌        | ❌        |
+| **Excepciones**            | ❌        | ✅ Crea       | ❌            | ❌        | ❌        |
+| **Modelos Eloquent**       | ❌        | ❌            | ✅ Crea       | ❌        | ❌        |
+| **Repositories**           | ❌        | ❌            | ✅ Implementa | ❌        | ❌        |
+| **Casts**                  | ❌        | ❌            | ✅ Crea       | ❌        | ❌        |
+| **Migrations**             | ❌        | ❌            | ✅ Crea       | ❌        | ❌        |
+| **Factories**              | ❌        | ❌            | ✅ Crea       | ❌        | ❌        |
+| **Controllers**            | ❌        | ❌            | ❌            | ✅ Crea   | ❌        |
+| **Filament Resources**     | ❌        | ❌            | ❌            | ✅ Crea   | ❌        |
+| **Form Requests**          | ❌        | ❌            | ❌            | ✅ Crea   | ❌        |
+| **API Resources**          | ❌        | ❌            | ❌            | ✅ Crea   | ❌        |
+| **Events**                 | ❌        | ❌            | ❌            | ❌        | ✅ Crea   |
+| **Listeners**              | ❌        | ❌            | ❌            | ❌        | ✅ Crea   |
+| **Jobs**                   | ❌        | ❌            | ❌            | ❌        | ✅ Crea   |
 
 ---
 
@@ -330,13 +369,17 @@ Sistema de eventos funcional → **Comunicación entre módulos**
 ## Ventajas de Esta División
 
 ### ✅ Claridad
+
 Cada agente tiene un propósito único y bien definido.
 
 ### ✅ Mantenibilidad
+
 Cambios en una capa no afectan otras capas.
 
 ### ✅ Testabilidad
+
 Cada agente puede ser testeado independientemente con la estrategia correcta:
+
 - **Agente A**: Unit tests (Value Objects, Enums)
 - **Agente B**: Unit tests con mocks (Actions)
 - **Agente C**: Feature tests con DB (Repositories)
@@ -344,10 +387,13 @@ Cada agente puede ser testeado independientemente con la estrategia correcta:
 - **Agente E**: Feature tests (Listeners/Jobs)
 
 ### ✅ Escalabilidad
+
 Nuevas funcionalidades siguen el mismo patrón predecible.
 
 ### ✅ Colaboración
+
 Múltiples desarrolladores pueden trabajar en paralelo sin conflictos:
+
 - Developer 1 → Agente A + B
 - Developer 2 → Agente C
 - Developer 3 → Agente D + E
@@ -357,6 +403,7 @@ Múltiples desarrolladores pueden trabajar en paralelo sin conflictos:
 ## Ejemplo Completo: Crear Producto
 
 ### 1. Agente A define el contrato
+
 ```php
 interface CreateProductInterface
 {
@@ -365,6 +412,7 @@ interface CreateProductInterface
 ```
 
 ### 2. Agente B implementa la lógica de negocio
+
 ```php
 final class CreateProductAction implements CreateProductInterface
 {
@@ -380,6 +428,7 @@ final class CreateProductAction implements CreateProductInterface
 ```
 
 ### 3. Agente C implementa la persistencia
+
 ```php
 final class ProductRepository implements ProductRepositoryInterface
 {
@@ -392,6 +441,7 @@ final class ProductRepository implements ProductRepositoryInterface
 ```
 
 ### 4. Agente D expone vía HTTP
+
 ```php
 final class ProductController
 {
@@ -407,6 +457,7 @@ final class ProductController
 ```
 
 ### 5. Agente E maneja efectos secundarios
+
 ```php
 final class ProductCreatedListener
 {
@@ -426,9 +477,9 @@ final class ProductCreatedListener
 - **Convenciones del proyecto**: [`conventions.md`](../conventions/conventions.md)
 - **Arquitectura de módulos**: [`modules.md`](../conventions/modules.md)
 - **Value Objects**: [`value-objects.md`](../conventions/value-objects.md)
-- **Agent Contracts**: [`agent-contracts.md`](agent-contracts.md)
-- **Agent Actions**: [`agent-actions.md`](agent-actions.md)
-- **Agent Persistence**: [`agent-persistence.md`](agent-persistence.md)
+- **Agent Contracts**: [`agent-contracts.md`](agent-a-contracts.md)
+- **Agent Actions**: [`agent-actions.md`](agent-b-actions.md)
+- **Agent Persistence**: [`agent-persistence.md`](agent-c-persistence.md)
 
 ---
 

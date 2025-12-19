@@ -363,7 +363,7 @@ En `Pest.php` agregar el siguiente in() '../Modules/*/tests/Feature' para que le
 ```php
 pest()->extend(Tests\TestCase::class)
     ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
-    ->in('Feature', '../Modules/*/tests/Feature');
+    ->in('Feature', '../Modules/*/tests/Feature','../Modules/*/tests/Browser');
 ```
 
 **Regenerar autoload**:

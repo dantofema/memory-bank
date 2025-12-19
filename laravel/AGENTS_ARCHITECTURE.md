@@ -93,7 +93,7 @@ memory-bank/
 ├── {proyecto}/                           # ESPECÍFICO DEL PROYECTO
 │   ├── project_definition.md             # Definición del proyecto
 │   │
-│   ├── module_diagram.md                 # Diagrama de módulos (opcional)
+│   ├── modular_architecture.md                 # Modular Architecture Overview
 │   │
 │   ├── modules/                          # Módulos del sistema
 │   │   ├── {module}-module.md            # Un archivo por módulo
@@ -107,7 +107,7 @@ memory-bank/
 │
 └── otro-proyecto/                        # Reutiliza los mismos agentes
     ├── project_definition.md
-    ├── module_diagram.md
+    ├── modular_architecture.md
     ├── modules/
     └── tasks/
 ```
@@ -265,7 +265,7 @@ Cada tarea debe referenciar:
 
 ```bash
 # Leer los archivos referenciados
-cat laravel/agents/agent-contracts.md
+cat laravel/agents/agent-a-contracts.md
 cat mi-proyecto/project_definition.md
 cat mi-proyecto/modules/orders-module.md
 cat mi-proyecto/tasks/orders/001-contracts.md
@@ -671,7 +671,7 @@ last_updated: "2025-12-18"
 Las tareas pueden especificar versión del agente:
 
 ```yaml
-agent: "@laravel/agents/agent-contracts.md@1.0"
+agent: "@laravel/agents/agent-a-contracts.md@1.0"
 ```
 
 Si no se especifica, se usa la última versión.

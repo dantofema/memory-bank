@@ -67,6 +67,17 @@ documentación completa en [`value-objects.md`](value-objects.md).
 - Las de Livewire son suficientes para este proyecto.
 - Las de Laravel Modules son suficientes para este proyecto.
 
+### Livewire Volt
+
+**Referencia completa**: ver [`livewire-volt.md`](livewire-volt.md) para convenciones detalladas sobre desarrollo con Volt.
+
+**Reglas clave**:
+- Sin Controllers: rutas llaman directamente a Volt
+- Máximo 150 líneas por componente
+- Extraer Actions para lógica de negocio
+- Dividir en sub-componentes cuando sea necesario
+- Feature tests obligatorios para cada componente
+
 ### Arquitectura de Módulos
 
 **Referencia completa**: ver [`modules.md`](modules.md) para la especificación detallada.
