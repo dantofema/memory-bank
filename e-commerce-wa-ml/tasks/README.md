@@ -22,66 +22,108 @@ Ver: `@laravel/AGENTS_ARCHITECTURE.md` para más información.
 
 ## Estado de Tareas
 
-| ID | Módulo | Título | Agente | Estado | Prioridad | Horas |
-|----|---------|--------|--------|--------|-----------|-------|
-| 001 | Order | Contratos, Data, VOs y Enums | A | Pending | High | 6 |
-| 002 | Order | Actions y Tests Unitarios | B | Pending | High | 8 |
-| 003 | Order | Repositorios y Persistencia | C | Pending | High | 6 |
-| 004 | Order | HTTP, Filament y Tests Feature | D | Pending | High | 10 |
-| 005 | Order | Events, Listeners y Jobs | E | Pending | Medium | 4 |
+### Auth Module
+
+| ID | Título | Agente | Estado | Prioridad | Horas |
+|----|--------|--------|--------|-----------|-------|
+| agente-e-task-01 | Eventos de Dominio del Módulo Auth | E | Pending | High | 1 |
+| agente-e-task-02 | Listeners de Auditoría y Seguridad | E | Pending | High | 2 |
+| agente-e-task-03 | Job de Limpieza de Tokens Expirados | E | Pending | Medium | 1 |
+| agente-e-task-04 | Integración de Eventos en Actions y Validación Final | E | Pending | High | 1.5 |
+
+### Orders Module
+
+| ID | Título | Agente | Estado | Prioridad | Horas |
+|----|--------|--------|--------|-----------|-------|
+| agente-e-task-05 | Eventos de Dominio del Módulo Orders | E | Pending | High | 2 |
+| agente-e-task-06 | Listeners de Auditoría para Módulo Orders | E | Pending | High | 2.5 |
+
+### Agente C Tasks
+
+| ID | Título | Agente | Estado | Prioridad | Horas |
+|----|--------|--------|--------|-----------|-------|
+| agente-c-task-01 | Repositories Auth | C | Pending | High | 3 |
+| agente-c-task-02 | Repositories Catalog | C | Pending | High | 4 |
+| agente-c-task-03 | Repositories Orders | C | Pending | High | 5 |
+| agente-c-task-04 | Repositories Payments | C | Pending | High | 3 |
+
+### Agente D Tasks
+
+| ID | Título | Agente | Estado | Prioridad | Horas |
+|----|--------|--------|--------|-----------|-------|
+| agente-d-task-01 | Controllers y Resources Auth | D | Pending | High | 4 |
+| agente-d-task-02 | Controllers y Resources Catalog | D | Pending | High | 5 |
+| agente-d-task-03 | Controllers y Resources Orders | D | Pending | High | 6 |
 
 ---
 
-## Módulos Planificados
+## Módulos por Agente
 
-### Order (Pedidos)
-- [x] 001 - Contratos, Data, VOs, Enums
-- [ ] 002 - Actions
-- [ ] 003 - Persistencia
-- [ ] 004 - HTTP/Filament
-- [ ] 005 - Events/Jobs
+### Agente E (Events, Listeners, Jobs)
 
-### Product (Productos)
-- [ ] 011 - Contratos, Data, VOs, Enums
-- [ ] 012 - Actions
-- [ ] 013 - Persistencia
-- [ ] 014 - HTTP/Filament
+#### Auth Module
+- [ ] agente-e-task-01: Eventos de Dominio
+- [ ] agente-e-task-02: Listeners de Auditoría
+- [ ] agente-e-task-03: Job de Limpieza
+- [ ] agente-e-task-04: Integración y Validación
 
-### Payment (Pagos)
-- [ ] 021 - Contratos, Data, VOs, Enums
-- [ ] 022 - Actions
-- [ ] 023 - Persistencia
-- [ ] 024 - HTTP/Filament
-- [ ] 025 - Events/Jobs (Webhooks MP)
+#### Orders Module
+- [ ] agente-e-task-05: Eventos de Dominio
+- [ ] agente-e-task-06: Listeners de Auditoría
 
-### Promotion (Promociones)
-- [ ] 031 - Contratos, Data, VOs, Enums
-- [ ] 032 - Actions
-- [ ] 033 - Persistencia
-- [ ] 034 - HTTP/Filament
+### Agente C (Repositories)
 
-### Category (Categorías)
-- [ ] 041 - Contratos, Data, VOs, Enums
-- [ ] 042 - Actions
-- [ ] 043 - Persistencia
-- [ ] 044 - HTTP/Filament
+- [ ] agente-c-task-01: Auth Repositories
+- [ ] agente-c-task-02: Catalog Repositories
+- [ ] agente-c-task-03: Orders Repositories
+- [ ] agente-c-task-04: Payments Repositories
+
+### Agente D (Controllers, Resources)
+
+- [ ] agente-d-task-01: Auth Controllers
+- [ ] agente-d-task-02: Catalog Controllers
+- [ ] agente-d-task-03: Orders Controllers
 
 ---
 
 ## Orden de Ejecución Recomendado
 
-### Fase 1: Fundamentos
-1. Order Module (001-005)
-2. Product Module (011-014)
-3. Category Module (041-044)
+### Fase 1: Auth Module (Agente E)
+1. agente-e-task-01: Eventos de Dominio Auth
+2. agente-e-task-02: Listeners de Auditoría Auth
+3. agente-e-task-03: Job de Limpieza
+4. agente-e-task-04: Integración y Validación Auth
 
-### Fase 2: Pagos y Promociones
-4. Payment Module (021-025)
-5. Promotion Module (031-034)
+### Fase 2: Orders Module (Agente E)
+5. agente-e-task-05: Eventos de Dominio Orders
+6. agente-e-task-06: Listeners de Auditoría Orders
 
-### Fase 3: Integraciones
-6. WhatsApp Integration
-7. Mercado Pago Webhooks
+### Fase 3: Repositories (Agente C)
+7. agente-c-task-01: Auth Repositories
+8. agente-c-task-02: Catalog Repositories
+9. agente-c-task-03: Orders Repositories
+10. agente-c-task-04: Payments Repositories
+
+### Fase 4: Controllers (Agente D)
+11. agente-d-task-01: Auth Controllers
+12. agente-d-task-02: Catalog Controllers
+13. agente-d-task-03: Orders Controllers
+
+---
+
+## Resumen de Mejoras Implementadas (2025-12-19)
+
+### Alta Prioridad ✅
+1. **Retry Backoff en Job**: Agregado `public array $backoff = [10, 30, 60];`
+2. **Timeout Configurable**: `config('auth.password_timeout', 60)` en Repository
+3. **Eventos de Orders**: Creada task-05 con 4 eventos críticos
+4. **Listeners de Orders**: Creada task-06 con auditoría obligatoria
+
+### Media Prioridad ✅
+5. **Métricas de Monitoreo**: Warning cuando deleted_count > 1000
+6. **Test de Performance**: Test con 10k registros (debe completar en < 5s)
+7. **Rate Limiting en Eventos**: Documentación de throttling en endpoints
+8. **Configuración de Alertas**: Ejemplos de alertas en sistemas de monitoreo
 
 ---
 
@@ -134,4 +176,16 @@ validate(code)
 
 ---
 
-**Última actualización**: 2025-12-18
+---
+
+## Estadísticas
+
+- **Total de tareas**: 13
+- **Agente E**: 6 tareas (5.5 horas estimadas)
+- **Agente C**: 4 tareas (15 horas estimadas)
+- **Agente D**: 3 tareas (15 horas estimadas)
+- **Total estimado**: 35.5 horas
+
+---
+
+**Última actualización**: 2025-12-19

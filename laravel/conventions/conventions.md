@@ -30,9 +30,11 @@ casts:
 
 ## Resumen
 
-Convenciones técnicas y arquitectónicas para desarrollo Laravel. Define estándares de código, arquitectura, base de datos, APIs y testing que deben aplicarse en todos los proyectos.
+Convenciones técnicas y arquitectónicas para desarrollo Laravel. Define estándares de código, arquitectura, base de
+datos, APIs y testing que deben aplicarse en todos los proyectos.
 
-**Versión 3.1**: criterios de decisión para Value Objects, tabla comparativa, ejemplo mínimo y referencia a documentación completa en [`value-objects.md`](value-objects.md).
+**Versión 3.1**: criterios de decisión para Value Objects, tabla comparativa, ejemplo mínimo y referencia a
+documentación completa en [`value-objects.md`](value-objects.md).
 
 ---
 
@@ -74,6 +76,7 @@ Los módulos se comunican mediante **dos mecanismos complementarios** con roles 
 - Fallan inmediatamente y propagan el error al llamador
 
 **Ejemplo**:
+
 ```php
 // Catalog expone capacidad de verificar stock
 interface CheckProductAvailabilityInterface
@@ -92,6 +95,7 @@ interface CheckProductAvailabilityInterface
 - Los consumidores deben ser idempotentes y tolerar duplicados
 
 **Ejemplo**:
+
 ```php
 // Order emite evento después de confirmar la orden
 final readonly class OrderConfirmedEvent
@@ -117,6 +121,7 @@ final readonly class OrderConfirmedEvent
 - Controllers y Actions: **un solo método público** (single responsibility)
 - Métodos públicos: **nunca reciben ni devuelven arrays**, solo objetos Spatie Laravel Data/Value Objects
 - Lógica de negocio: reside en clases Action, no en Controllers
+- Nunca utilizamos clases Service
 
 ### Modelos Eloquent
 
@@ -144,26 +149,27 @@ final readonly class OrderConfirmedEvent
 **Usar Value Object si cumple AL MENOS 1 de estos criterios:**
 
 1. **Tiene reglas de negocio propias**: la validación o comportamiento va más allá de tipos primitivos
-   - ✅ `Money` (no permite negativos, maneja redondeo, formatea con moneda)
-   - ✅ `PhoneNumber` (valida formato, normaliza, extrae código de país)
-   - ❌ `string $name` (simple validación de longitud, no requiere VO)
+    - ✅ `Money` (no permite negativos, maneja redondeo, formatea con moneda)
+    - ✅ `PhoneNumber` (valida formato, normaliza, extrae código de país)
+    - ❌ `string $name` (simple validación de longitud, no requiere VO)
 
 2. **Se reutiliza en múltiples contextos**: aparece en varios modelos o servicios
-   - ✅ `Address` (usado en Order, User, Merchant)
-   - ✅ `Stock` (usado en Product, ProductVariant)
-   - ❌ `product_description` (solo Product lo usa, simple string)
+    - ✅ `Address` (usado en Order, User, Merchant)
+    - ✅ `Stock` (usado en Product, ProductVariant)
+    - ❌ `product_description` (solo Product lo usa, simple string)
 
 3. **No debe existir inválido**: la construcción debe garantizar estado válido siempre
-   - ✅ `Email` (constructor valida formato, garantiza email válido)
-   - ✅ `OrderStatus` (enum como VO garantiza valores permitidos)
-   - ❌ `int $quantity` (puede ser negativo temporalmente durante validación)
+    - ✅ `Email` (constructor valida formato, garantiza email válido)
+    - ✅ `OrderStatus` (enum como VO garantiza valores permitidos)
+    - ❌ `int $quantity` (puede ser negativo temporalmente durante validación)
 
 4. **Aporta semántica clara al dominio**: el tipo primitivo no expresa suficiente significado
-   - ✅ `PromotionPeriod` (expresa vigencia con start/end, no solo dos dates)
-   - ✅ `DiscountValue` (distingue porcentaje vs monto fijo)
-   - ❌ `bool $is_active` (el booleano es semánticamente claro)
+    - ✅ `PromotionPeriod` (expresa vigencia con start/end, no solo dos dates)
+    - ✅ `DiscountValue` (distingue porcentaje vs monto fijo)
+    - ❌ `bool $is_active` (el booleano es semánticamente claro)
 
-**Regla práctica**: si dudás, empezá con tipo primitivo. Convertí a VO cuando el código muestre duplicación de validaciones o lógica relacionada.
+**Regla práctica**: si dudás, empezá con tipo primitivo. Convertí a VO cuando el código muestre duplicación de
+validaciones o lógica relacionada.
 
 ---
 
@@ -171,17 +177,17 @@ final readonly class OrderConfirmedEvent
 
 ### Tabla Comparativa: Usar VO vs No Usar VO
 
-| Caso | Primitivo | ¿Usar VO? | Razón |
-|------|-----------|-----------|-------|
-| Precio de producto | `int $price_cents` | ✅ **Sí - `Money`** | Reglas de negocio (formato, redondeo, comparación), reutilizable |
-| Stock disponible | `int $stock` | ✅ **Sí - `Stock`** | Reglas (no negativo, reservado vs disponible), reutilizable |
-| Teléfono de contacto | `string $phone` | ✅ **Sí - `PhoneNumber`** | Validación compleja (formato internacional), normalización |
-| Email de usuario | `string $email` | ✅ **Sí - `Email`** | No debe existir inválido, validación en constructor |
-| Estado del pedido | `string $status` | ✅ **Sí - `OrderStatus`** | Valores limitados, transiciones con reglas, semántica clara |
-| Nombre de producto | `string $name` | ❌ **No** | Simple validación de longitud, no hay lógica de negocio |
-| Descripción | `string $description` | ❌ **No** | Solo almacenamiento, sin reglas propias |
-| Flag activo | `bool $is_active` | ❌ **No** | Booleano es semánticamente claro |
-| Cantidad en carrito | `int $quantity` | ⚠️ **Depende** | Si solo valida > 0 → No. Si tiene lógica de conversión de unidades → Sí |
+| Caso                 | Primitivo             | ¿Usar VO?                | Razón                                                                   |
+|----------------------|-----------------------|--------------------------|-------------------------------------------------------------------------|
+| Precio de producto   | `int $price_cents`    | ✅ **Sí - `Money`**       | Reglas de negocio (formato, redondeo, comparación), reutilizable        |
+| Stock disponible     | `int $stock`          | ✅ **Sí - `Stock`**       | Reglas (no negativo, reservado vs disponible), reutilizable             |
+| Teléfono de contacto | `string $phone`       | ✅ **Sí - `PhoneNumber`** | Validación compleja (formato internacional), normalización              |
+| Email de usuario     | `string $email`       | ✅ **Sí - `Email`**       | No debe existir inválido, validación en constructor                     |
+| Estado del pedido    | `string $status`      | ✅ **Sí - `OrderStatus`** | Valores limitados, transiciones con reglas, semántica clara             |
+| Nombre de producto   | `string $name`        | ❌ **No**                 | Simple validación de longitud, no hay lógica de negocio                 |
+| Descripción          | `string $description` | ❌ **No**                 | Solo almacenamiento, sin reglas propias                                 |
+| Flag activo          | `bool $is_active`     | ❌ **No**                 | Booleano es semánticamente claro                                        |
+| Cantidad en carrito  | `int $quantity`       | ⚠️ **Depende**           | Si solo valida > 0 → No. Si tiene lógica de conversión de unidades → Sí |
 
 ### Implementación Mínima de un Value Object
 
@@ -219,6 +225,7 @@ final readonly class Money implements Wireable
 ```
 
 **Características clave:**
+
 - `final readonly`: inmutabilidad garantizada
 - Constructor valida invariantes (no permite estado inválido)
 - `Wireable`: compatibilidad con Livewire
@@ -280,6 +287,7 @@ final readonly class Money implements Wireable
 - **Cobertura de tests debe ser prácticamente del 100%**
 - Feature tests preferidos sobre Unit tests
 - Smoke tests para todas las páginas con UI
+- Smoke test en `tests/Feature/SmokeTest.php`
 - **Unit tests obligatorios para Value Objects**: validar constructor, invariantes, métodos de dominio
 
 ---
@@ -337,7 +345,8 @@ Comandos sugeridos (ejecutar desde el root del proyecto):
 
 - Asumo que Sail está instalado y configurado en este repositorio y que `vendor/bin/sail` es el entrypoint correcto.
 - Asumo que Laravel Modules (`nwidart/laravel-modules`) está instalado y sigue la convención `Modules/{ModuleName}/...`.
-- Asumo que las reglas de comunicación entre módulos definidas en [`modules.md`](modules.md) son obligatorias para todo el proyecto.
+- Asumo que las reglas de comunicación entre módulos definidas en [`modules.md`](modules.md) son obligatorias para todo
+  el proyecto.
 
 ---
 
