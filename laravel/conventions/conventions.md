@@ -60,6 +60,13 @@ documentación completa en [`value-objects.md`](value-objects.md).
 
 ## Arquitectura y Diseño
 
+### Estructura de Carpetas
+
+- Las de Laravel standard son suficientes para este proyecto.
+- Las de Filament son suficientes para este proyecto.
+- Las de Livewire son suficientes para este proyecto.
+- Las de Laravel Modules son suficientes para este proyecto.
+
 ### Arquitectura de Módulos
 
 **Referencia completa**: ver [`modules.md`](modules.md) para la especificación detallada.
