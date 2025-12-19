@@ -5,21 +5,21 @@ author: "Alejandro Leone"
 last_updated: "2025-12-16"
 purpose: "Single-tenant e-commerce platform for entrepreneurs with WhatsApp integration"
 tools:
-    - sail
-    - pest
-    - phpstan
-    - rector
-    - pint
-    - filament
-    - livewire
-    - tailwind
+  - sail
+  - pest
+  - phpstan
+  - rector
+  - pint
+  - filament
+  - livewire
+  - tailwind
 phpstan_level: 6
 context:
-    project_type: "Laravel 12 with Filament v4, Livewire v3, Pest v4"
-    team_size: 1
-    priority: "MVP - speed and simplicity"
-    quality_gates: "PHPStan level 6+, Pint, Rector"
-    architecture: "Monolith with Laravel Modules"
+  project_type: "Laravel 12 with Filament v4, Livewire v3, Pest v4"
+  team_size: 1
+  priority: "MVP - speed and simplicity"
+  quality_gates: "PHPStan level 6+, Pint, Rector"
+  architecture: "Monolith with Laravel Modules"
 ---
 
 # Project Definition
@@ -122,7 +122,7 @@ Plataforma web simple que permite:
 
 - Dashboard con métricas clave.
 - Gestión de productos (stock, estado activo, variantes, precios, categoría).
-- Gestión de categorías (una por producto).
+- Gestión de categorías (un producto pertenece solo a una categorîa).
 - Gestión de pedidos:
     - **Edición manual** (ver límites en sección 6).
     - Cambio de estados (OrderStatus y PaymentStatus).

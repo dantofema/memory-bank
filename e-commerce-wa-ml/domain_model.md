@@ -37,9 +37,14 @@ Los módulos se organizan por **dominio de negocio**, no por capa de presentaci�
 - `Filament`: Backoffice resources and widgets
 - `Actions`: Business logic
 - `Models`: Eloquent models
+- `Database/Factories`: Model factories (obligatorio para cada modelo)
+- `Enums`: PHP 8.5+ enums for states and types
 - `Events`: Domain events
 - `Contracts`: Exposed contracts / interfaces
-- `ValueObjects`: Immutable value objects
+- `ValueObjects`: Immutable value objects with `Wireable`
+- `Casts`: Eloquent casts for Value Objects
+- `Tests/Unit`: Value Object validation tests
+- `Tests/Feature`: Integration tests
 - `routes/web.php`: Public routes
 
 **Ejemplo**: El módulo `Catalog` contiene:
@@ -60,11 +65,9 @@ Esta organización mantiene **cohesión de dominio** y evita duplicación de ló
 graph LR
     F_CATALOG[Frontend: Catalog]
     F_CART[Frontend: Cart]
-    
     CATALOG[Backend: Catalog]
     ORDERS[Backend: Orders]
     PAYMENTS[Backend: Payments]
-
     F_CATALOG -->|Consulta productos| CATALOG
     F_CART -->|Valida stock| CATALOG
     F_CART -->|Aplica promociones| CATALOG
@@ -80,12 +83,10 @@ graph LR
     B_ORDERS[Backoffice: Orders]
     B_PAYMENTS[Backoffice: Payments]
     B_REPORTS[Backoffice: Reports]
-    
     CATALOG[Backend: Catalog]
     ORDERS[Backend: Orders]
     PAYMENTS[Backend: Payments]
     REPORTS[Backend: Reports]
-
     B_CATALOG -->|CRUD productos| CATALOG
     B_ORDERS -->|Gestiona estados| ORDERS
     B_PAYMENTS -->|Actualiza pago| PAYMENTS
@@ -100,10 +101,8 @@ graph TB
     ORDERS[Orders]
     CATALOG[Catalog]
     PAYMENTS[Payments]
-
     CART -->|CheckProductAvailability| CATALOG
     CART -->|ApplyPromotion| CATALOG
-    
     ORDERS -->|CheckProductAvailability| CATALOG
     ORDERS -->|ApplyPromotion| CATALOG
     ORDERS -->|RequestPayment| PAYMENTS
@@ -116,7 +115,6 @@ graph TB
     ORDERS[Orders]
     PAYMENTS[Payments]
     WHATSAPP[WhatsApp]
-
     ORDERS -->|OrderCreatedEvent| WHATSAPP
     ORDERS -->|OrderStatusChangedEvent| WHATSAPP
     PAYMENTS -->|PaymentConfirmedEvent| ORDERS
@@ -129,21 +127,17 @@ graph TB
 graph TB
     AUTH[Auth]
     SECURITY[Security]
-    
     B_CATALOG[Backoffice: Catalog]
     B_ORDERS[Backoffice: Orders]
     B_PAYMENTS[Backoffice: Payments]
     B_REPORTS[Backoffice: Reports]
-    
     F_CATALOG[Frontend: Catalog]
     F_CART[Frontend: Cart]
     ORDERS[Backend: Orders]
-
     AUTH -.->|Protege| B_CATALOG
     AUTH -.->|Protege| B_ORDERS
     AUTH -.->|Protege| B_PAYMENTS
     AUTH -.->|Protege| B_REPORTS
-    
     SECURITY -.->|Protege| F_CATALOG
     SECURITY -.->|Protege| F_CART
     SECURITY -.->|Rate limiting| ORDERS
@@ -208,6 +202,32 @@ autenticación.
 - ❌ **NO implementa roles complejos** (single-tenant: un merchant por instancia)
 - ✅ **Solo protege el backoffice de Filament**
 - ✅ **Las rutas públicas de Livewire/Volt NO pasan por Auth**
+
+#### Detalles Técnicos Internos
+
+##### Modelos Eloquent
+
+```php
+// Modules/Auth/Models/User.php
+final class User extends Authenticatable
+{
+    // Relaciones: N/A (single-tenant)
+    // Factory: UserFactory (obligatorio)
+}
+```
+
+##### Value Objects
+
+- Ninguno (usa tipos primitivos de Laravel para autenticación)
+
+##### Enums PHP
+
+- Ninguno (no hay estados complejos en Auth para MVP)
+
+##### Testing
+
+- **Feature Tests**: Login exitoso/fallido, logout, sesiones seguras
+- **Unit Tests**: N/A (no hay Value Objects)
 
 ---
 
@@ -290,6 +310,200 @@ readonly class ProductOutOfStockEvent
 - ✅ **Stock puede estar a nivel de producto o variante**
 - ✅ **Promociones no acumulables** entre sí
 
+#### Detalles Técnicos Internos
+
+##### Modelos Eloquent
+
+```php
+// Modules/Catalog/Models/Product.php
+final class Product extends Model
+{
+    protected $casts = [
+        'price' => PriceCast::class,
+        'stock' => StockCast::class,
+        'is_active' => 'boolean',
+    ];
+    
+    // Relaciones:
+    // - belongsTo(Category::class)
+    // - hasMany(ProductVariant::class)
+    // - hasMany(Promotion::class)
+    
+    // Factory: ProductFactory (obligatorio)
+}
+
+// Modules/Catalog/Models/ProductVariant.php
+final class ProductVariant extends Model
+{
+    protected $casts = [
+        'price' => PriceCast::class,
+        'stock' => StockCast::class,
+    ];
+    
+    // Relaciones:
+    // - belongsTo(Product::class)
+    
+    // Factory: ProductVariantFactory (obligatorio)
+}
+
+// Modules/Catalog/Models/Category.php
+final class Category extends Model
+{
+    // Relaciones:
+    // - hasMany(Product::class)
+    
+    // Factory: CategoryFactory (obligatorio)
+}
+
+// Modules/Catalog/Models/Promotion.php
+final class Promotion extends Model
+{
+    protected $casts = [
+        'type' => PromotionType::class, // Enum PHP
+        'discount_value' => 'int',
+        'valid_from' => 'datetime',
+        'valid_until' => 'datetime',
+    ];
+    
+    // Relaciones:
+    // - belongsTo(Product::class)
+    
+    // Factory: PromotionFactory (obligatorio)
+}
+```
+
+##### Value Objects
+
+```php
+// Modules/Catalog/ValueObjects/Product/Price.php
+final readonly class Price implements Wireable
+{
+    public function __construct(
+        public int $cents,
+        public string $currency = 'ARS'
+    ) {
+        if ($this->cents < 0) {
+            throw new InvalidArgumentException('Price cannot be negative');
+        }
+    }
+    
+    // Wireable implementation...
+}
+
+// Modules/Catalog/ValueObjects/Product/Stock.php
+final readonly class Stock implements Wireable
+{
+    public function __construct(
+        public int $available,
+        public int $reserved = 0
+    ) {
+        if ($this->available < 0 || $this->reserved < 0) {
+            throw new InvalidArgumentException('Stock values cannot be negative');
+        }
+    }
+    
+    public function canFulfill(int $quantity): bool
+    {
+        return ($this->available - $this->reserved) >= $quantity;
+    }
+    
+    // Wireable implementation...
+}
+
+// Compartido: Modules/Catalog/ValueObjects/ProductId.php
+final readonly class ProductId implements Wireable
+{
+    public function __construct(public int $value)
+    {
+        if ($this->value <= 0) {
+            throw new InvalidArgumentException('ProductId must be positive');
+        }
+    }
+    
+    // Wireable implementation...
+}
+```
+
+##### Casts Eloquent
+
+```php
+// Modules/Catalog/Casts/Product/PriceCast.php
+final class PriceCast implements CastsAttributes
+{
+    public function get($model, string $key, $value, array $attributes): Price
+    {
+        return new Price((int) $value, $attributes['currency'] ?? 'ARS');
+    }
+    
+    public function set($model, string $key, $value, array $attributes): array
+    {
+        if (!$value instanceof Price) {
+            throw new InvalidArgumentException('Value must be a Price instance');
+        }
+        
+        return ['price_cents' => $value->cents, 'currency' => $value->currency];
+    }
+}
+
+// Modules/Catalog/Casts/Product/StockCast.php
+final class StockCast implements CastsAttributes
+{
+    public function get($model, string $key, $value, array $attributes): Stock
+    {
+        return new Stock(
+            (int) $value,
+            (int) ($attributes['stock_reserved'] ?? 0)
+        );
+    }
+    
+    public function set($model, string $key, $value, array $attributes): array
+    {
+        if (!$value instanceof Stock) {
+            throw new InvalidArgumentException('Value must be a Stock instance');
+        }
+        
+        return [
+            'stock_available' => $value->available,
+            'stock_reserved' => $value->reserved
+        ];
+    }
+}
+```
+
+##### Enums PHP
+
+```php
+// Modules/Catalog/Enums/PromotionType.php
+enum PromotionType: string
+{
+    case PERCENTAGE = 'percentage';
+    case FIXED_PRICE = 'fixed_price';
+    
+    public function isPercentage(): bool
+    {
+        return $this === self::PERCENTAGE;
+    }
+    
+    public function isFixedPrice(): bool
+    {
+        return $this === self::FIXED_PRICE;
+    }
+}
+```
+
+##### Testing
+
+- **Unit Tests** (obligatorio):
+    - `PriceTest`: validar constructor, negativos, conversión
+    - `StockTest`: validar `canFulfill()`, reserva, disponibilidad
+    - `ProductIdTest`: validar valores positivos
+
+- **Feature Tests**:
+    - `ProductCRUDTest`: crear, editar, eliminar productos
+    - `CheckProductAvailabilityTest`: validar stock con variantes
+    - `ApplyPromotionTest`: aplicar promociones vigentes, no acumulables
+    - `CategoryManagementTest`: CRUD de categorías
+
 ---
 
 ### 🛒 Cart (Carrito)
@@ -351,6 +565,54 @@ ApplyPromotionInterface            // De Catalog
 - ✅ **Limpieza de carrito después de crear pedido exitoso**
 
 **Nota**: Cart no tiene componentes Filament (no hay gestión administrativa de carritos).
+
+#### Detalles Técnicos Internos
+
+##### Modelos Eloquent
+
+- **Ninguno** (estado en sesión, no persiste en DB)
+
+##### Value Objects
+
+```php
+// Compartido: app/ValueObjects/Quantity.php
+final readonly class Quantity implements Wireable
+{
+    public function __construct(public int $value)
+    {
+        if ($this->value <= 0) {
+            throw new InvalidArgumentException('Quantity must be positive');
+        }
+    }
+    
+    public function multiply(int $multiplier): self
+    {
+        return new self($this->value * $multiplier);
+    }
+    
+    // Wireable implementation...
+}
+```
+
+##### Casts Eloquent
+
+- **Ninguno** (no hay modelos persistentes)
+
+##### Enums PHP
+
+- **Ninguno**
+
+##### Testing
+
+- **Unit Tests**:
+    - `QuantityTest`: validar valores positivos, multiplicación
+
+- **Feature Tests**:
+    - `AddToCartTest`: agregar productos, validar stock
+    - `RemoveFromCartTest`: quitar items
+    - `UpdateCartQuantityTest`: modificar cantidades
+    - `CalculateCartTotalTest`: totales con promociones
+    - `CheckoutProcessTest`: flujo completo de checkout
 
 ---
 
@@ -459,6 +721,322 @@ readonly class PaymentStatusChangedEvent
 - ✅ **Auditoría obligatoria** para cambios de estado
 - ✅ **Control transaccional de stock** con locks pessimistas
 
+#### Detalles Técnicos Internos
+
+##### Modelos Eloquent
+
+```php
+// Modules/Orders/Models/Order.php
+final class Order extends Model
+{
+    protected $casts = [
+        'order_status' => OrderStatus::class, // Enum PHP
+        'payment_status' => PaymentStatus::class, // Enum PHP
+        'total' => MoneyCast::class,
+        'customer_phone' => PhoneNumberCast::class,
+        'payment_method' => PaymentMethod::class, // Enum PHP
+    ];
+    
+    // Relaciones:
+    // - hasMany(OrderItem::class)
+    // - hasOne(Address::class)
+    // - hasMany(OrderStatusLog::class)
+    
+    // Factory: OrderFactory (obligatorio)
+}
+
+// Modules/Orders/Models/OrderItem.php
+final class OrderItem extends Model
+{
+    protected $casts = [
+        'unit_price' => MoneyCast::class,
+        'quantity' => 'int',
+        'subtotal' => MoneyCast::class,
+    ];
+    
+    // Relaciones:
+    // - belongsTo(Order::class)
+    // - morphTo('orderable') // Product o ProductVariant
+    
+    // Factory: OrderItemFactory (obligatorio)
+}
+
+// Modules/Orders/Models/Address.php
+final class Address extends Model
+{
+    protected $casts = [
+        'full_address' => AddressCast::class,
+    ];
+    
+    // Relaciones:
+    // - belongsTo(Order::class)
+    
+    // Factory: AddressFactory (obligatorio)
+}
+
+// Modules/Orders/Models/OrderStatusLog.php
+final class OrderStatusLog extends Model
+{
+    protected $casts = [
+        'old_value' => 'string',
+        'new_value' => 'string',
+    ];
+    
+    // Relaciones:
+    // - belongsTo(Order::class)
+    // - belongsTo(User::class, 'user_id')
+    
+    // Factory: OrderStatusLogFactory (obligatorio)
+}
+```
+
+##### Value Objects
+
+```php
+// Compartido: app/ValueObjects/Money.php
+final readonly class Money implements Wireable
+{
+    public function __construct(
+        public int $cents,
+        public string $currency = 'ARS'
+    ) {
+        if ($this->cents < 0) {
+            throw new InvalidArgumentException('Money cannot be negative');
+        }
+    }
+    
+    public function add(Money $other): self
+    {
+        if ($this->currency !== $other->currency) {
+            throw new InvalidArgumentException('Cannot add different currencies');
+        }
+        return new self($this->cents + $other->cents, $this->currency);
+    }
+    
+    // Wireable implementation...
+}
+
+// Compartido: app/ValueObjects/PhoneNumber.php
+final readonly class PhoneNumber implements Wireable
+{
+    public function __construct(public string $value)
+    {
+        // Validación de formato internacional
+        if (!preg_match('/^\+?[1-9]\d{1,14}$/', $this->value)) {
+            throw new InvalidArgumentException('Invalid phone number format');
+        }
+    }
+    
+    public function normalize(): string
+    {
+        return preg_replace('/[^\d+]/', '', $this->value);
+    }
+    
+    // Wireable implementation...
+}
+
+// Modules/Orders/ValueObjects/Order/FullAddress.php
+final readonly class FullAddress implements Wireable
+{
+    public function __construct(
+        public string $street,
+        public string $city,
+        public string $postalCode,
+        public ?string $additionalInfo = null
+    ) {
+        if (empty($this->street) || empty($this->city)) {
+            throw new InvalidArgumentException('Street and city are required');
+        }
+    }
+    
+    public function toString(): string
+    {
+        $parts = [$this->street, $this->city, $this->postalCode];
+        if ($this->additionalInfo) {
+            $parts[] = $this->additionalInfo;
+        }
+        return implode(', ', array_filter($parts));
+    }
+    
+    // Wireable implementation...
+}
+
+// Compartido: Modules/Orders/ValueObjects/OrderId.php
+final readonly class OrderId implements Wireable
+{
+    public function __construct(public int $value)
+    {
+        if ($this->value <= 0) {
+            throw new InvalidArgumentException('OrderId must be positive');
+        }
+    }
+    
+    // Wireable implementation...
+}
+```
+
+##### Casts Eloquent
+
+```php
+// Compartido: app/Casts/MoneyCast.php
+final class MoneyCast implements CastsAttributes
+{
+    public function get($model, string $key, $value, array $attributes): Money
+    {
+        return new Money((int) $value, $attributes['currency'] ?? 'ARS');
+    }
+    
+    public function set($model, string $key, $value, array $attributes): array
+    {
+        if (!$value instanceof Money) {
+            throw new InvalidArgumentException('Value must be a Money instance');
+        }
+        
+        return ["{$key}_cents" => $value->cents, 'currency' => $value->currency];
+    }
+}
+
+// Compartido: app/Casts/PhoneNumberCast.php
+final class PhoneNumberCast implements CastsAttributes
+{
+    public function get($model, string $key, $value, array $attributes): PhoneNumber
+    {
+        return new PhoneNumber($value);
+    }
+    
+    public function set($model, string $key, $value, array $attributes): string
+    {
+        if (!$value instanceof PhoneNumber) {
+            throw new InvalidArgumentException('Value must be a PhoneNumber instance');
+        }
+        
+        return $value->normalize();
+    }
+}
+
+// Modules/Orders/Casts/Order/FullAddressCast.php
+final class FullAddressCast implements CastsAttributes
+{
+    public function get($model, string $key, $value, array $attributes): FullAddress
+    {
+        return new FullAddress(
+            $attributes['street'],
+            $attributes['city'],
+            $attributes['postal_code'],
+            $attributes['additional_info'] ?? null
+        );
+    }
+    
+    public function set($model, string $key, $value, array $attributes): array
+    {
+        if (!$value instanceof FullAddress) {
+            throw new InvalidArgumentException('Value must be a FullAddress instance');
+        }
+        
+        return [
+            'street' => $value->street,
+            'city' => $value->city,
+            'postal_code' => $value->postalCode,
+            'additional_info' => $value->additionalInfo,
+        ];
+    }
+}
+```
+
+##### Enums PHP
+
+```php
+// Modules/Orders/Enums/OrderStatus.php
+enum OrderStatus: string
+{
+    case NEW = 'new';
+    case CONFIRMED = 'confirmed';
+    case IN_DELIVERY = 'in_delivery';
+    case DELIVERED = 'delivered';
+    case REJECTED = 'rejected';
+    case CANCELLED = 'cancelled';
+    
+    public function isActive(): bool
+    {
+        return in_array($this, [self::NEW, self::CONFIRMED, self::IN_DELIVERY]);
+    }
+    
+    public function canEdit(): bool
+    {
+        return !in_array($this, [self::DELIVERED, self::REJECTED]);
+    }
+    
+    public function canTransitionTo(self $newStatus): bool
+    {
+        return match($this) {
+            self::NEW => in_array($newStatus, [self::CONFIRMED, self::REJECTED, self::CANCELLED]),
+            self::CONFIRMED => in_array($newStatus, [self::IN_DELIVERY, self::CANCELLED]),
+            self::IN_DELIVERY => in_array($newStatus, [self::DELIVERED, self::CANCELLED]),
+            default => false,
+        };
+    }
+}
+
+// Modules/Orders/Enums/PaymentStatus.php
+enum PaymentStatus: string
+{
+    case PENDING = 'pending';
+    case PAID = 'paid';
+    case REFUNDED = 'refunded';
+    
+    public function isPending(): bool
+    {
+        return $this === self::PENDING;
+    }
+    
+    public function isPaid(): bool
+    {
+        return $this === self::PAID;
+    }
+    
+    public function canRefund(): bool
+    {
+        return $this === self::PAID;
+    }
+}
+
+// Modules/Orders/Enums/PaymentMethod.php
+enum PaymentMethod: string
+{
+    case MERCADO_PAGO = 'mercado_pago';
+    case CASH = 'cash';
+    case TRANSFER = 'transfer';
+    
+    public function requiresExternalLink(): bool
+    {
+        return $this === self::MERCADO_PAGO;
+    }
+    
+    public function isManual(): bool
+    {
+        return in_array($this, [self::CASH, self::TRANSFER]);
+    }
+}
+```
+
+##### Testing
+
+- **Unit Tests** (obligatorio):
+    - `MoneyTest`: validar suma, negativos, diferentes monedas
+    - `PhoneNumberTest`: validar formato, normalización
+    - `FullAddressTest`: validar campos requeridos, toString
+    - `OrderIdTest`: validar valores positivos
+    - `OrderStatusTest`: validar transiciones válidas, `canEdit()`
+    - `PaymentStatusTest`: validar estados, `canRefund()`
+
+- **Feature Tests**:
+    - `CreateOrderTest`: crear pedido, descuento transaccional de stock
+    - `UpdateOrderStatusTest`: cambios de estado, validación de transiciones
+    - `UpdatePaymentStatusTest`: actualización manual y automática
+    - `EditOrderTest`: editar campos permitidos según estado
+    - `OrderAuditTest`: auditoría de cambios de estado
+    - `OrderStatusTransitionTest`: validar reglas de transición
+
 ---
 
 ### 🔒 Security (Anti-abuso) - TRANSVERSAL
@@ -536,6 +1114,35 @@ readonly class SuspiciousActivityDetectedEvent
 - ✅ **Honeypot en formularios públicos**
 
 **Nota**: Security no tiene componentes de UI (solo middleware y lógica).
+
+#### Detalles Técnicos Internos
+
+##### Modelos Eloquent
+
+- **Ninguno** (configuración vía .env y cache de Redis)
+
+##### Value Objects
+
+- Reutiliza `PhoneNumber` de Orders (compartido)
+
+##### Casts Eloquent
+
+- **Ninguno**
+
+##### Enums PHP
+
+- **Ninguno**
+
+##### Testing
+
+- **Unit Tests**:
+    - N/A (no hay Value Objects propios)
+
+- **Feature Tests**:
+    - `RateLimitingTest`: validar límites por IP y teléfono
+    - `ActiveOrdersLimitTest`: validar máximo de pedidos activos
+    - `HoneypotValidationTest`: detectar bots con honeypot
+    - `CaptchaValidationTest`: validar integración con captcha invisible
 
 ---
 
