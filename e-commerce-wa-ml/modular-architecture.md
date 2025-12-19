@@ -3,16 +3,16 @@ name: "E-Commerce WhatsApp + Mercado Libre - Domain Model"
 version: "1.0"
 author: "Alejandro Leone"
 last_updated: "2025-12-19"
-purpose: "Domain model organized by modules with scope, communications, and architectural decisions"
+purpose: "Define qué módulos existen. Qué responsabilidad tiene cada uno. Cómo se comunican. Qué NO hacen"
 context:
   project_type: "Laravel 12 with Filament v4, Livewire v3, Pest v4"
   architecture: "Monolith with Laravel Modules"
   presentation_layers: "Filament (backoffice) + Livewire/Volt (frontend)"
 ---
 
-# Domain Model - Organización por Módulos
+# Modular Architecture Overview
 
-## 1. Visión General del Dominio
+## 1. Visión General de la arquitectura de modulos
 
 Este documento describe la organización del sistema e-commerce desde una perspectiva modular, definiendo:
 
@@ -20,6 +20,16 @@ Este documento describe la organización del sistema e-commerce desde una perspe
 - **Comunicaciones** entre módulos (interfaces y eventos)
 - **Restricciones** y límites claros
 - **Organización de capas** (Frontend, Backoffice, Backend)
+
+Fuera del alcance:
+
+- Internal entities
+- Value Objects
+- Enums
+- Casts
+- Factories
+- Test structure
+- Code quality tooling
 
 ### Arquitectura de Presentación
 
@@ -1033,7 +1043,7 @@ El proyecto debe implementarse siguiendo el **orden de desarrollo** definido:
 1. **Fase 1 - Fundamentos**: Auth → Catalog
 2. **Fase 2 - MVP Funcional**: Cart → Orders → Security
 3. **Fase 3 - Integraciones**: WhatsApp → Payments
-4. **Fase 4 - Post-MVP**: Promotions → Reports
+4. **Fase 4 - Promociones y Reportes**: Promotions → Reports
 
 ### Validación por Fase
 
