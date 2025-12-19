@@ -7,13 +7,15 @@ purpose: "Convenciones para desarrollo con Livewire Volt en proyectos Laravel"
 context:
   framework: "Laravel 12 + Livewire v3 + Volt"
   priority: "Archivos manejables, testeable, mantenible"
+  note: "Sin Controllers, sin Services - solo Actions"
 ---
 
 # Convenciones Livewire Volt
 
 ## Resumen
 
-Convenciones y mejores prácticas para desarrollo con Livewire Volt. Enfocado en mantener archivos de tamaño manejable, clara separación de responsabilidades y código testeable.
+Convenciones y mejores prácticas para desarrollo con Livewire Volt. Enfocado en mantener archivos de tamaño manejable,
+clara separación de responsabilidades y código testeable.
 
 ---
 
@@ -61,7 +63,7 @@ Route::get('/products', [ProductController::class, 'index']); // EVITAR
 #### Indicadores de que un componente es demasiado grande:
 
 - ✅ Más de 150 líneas totales
-- ✅ Más de 5 métodos públicos
+- ✅ Más de 4 métodos públicos
 - ✅ Más de 3 computed properties
 - ✅ Lógica de negocio compleja mezclada con lógica de presentación
 - ✅ Múltiples responsabilidades (listado + edición + creación)
@@ -373,23 +375,23 @@ $dashboardStats = computed(function () {
 <?php
 // resources/views/livewire/dashboard/index.blade.php
 
-use App\Services\DashboardStatsService;
+use App\Actions\Dashboard\GetDashboardStatsAction;
 use function Livewire\Volt\{computed};
 
-$stats = computed(fn (DashboardStatsService $service) => $service->getStats());
+$stats = computed(fn (GetDashboardStatsAction $action) => $action->execute());
 
 ?>
 ```
 
 ```php
 <?php
-// app/Services/DashboardStatsService.php
+// app/Actions/Dashboard/GetDashboardStatsAction.php
 
-namespace App\Services;
+namespace App\Actions\Dashboard;
 
-final class DashboardStatsService
+final class GetDashboardStatsAction
 {
-    public function getStats(): DashboardStatsData
+    public function execute(): DashboardStatsData
     {
         return new DashboardStatsData(
             totalRevenue: Order::sum('total'),
@@ -649,7 +651,7 @@ Antes de considerar un componente Volt completo, verificar:
 
 - [ ] ¿El componente tiene menos de 150 líneas?
 - [ ] ¿Tiene una sola responsabilidad clara?
-- [ ] ¿La lógica de negocio está en Actions/Services?
+- [ ] ¿La lógica de negocio está en Actions?
 - [ ] ¿La validación compleja está en FormRequests?
 - [ ] ¿Tiene Feature tests con cobertura completa?
 - [ ] ¿Los computed properties son simples?
