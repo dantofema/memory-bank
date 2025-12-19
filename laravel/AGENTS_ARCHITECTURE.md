@@ -77,11 +77,11 @@ Las tareas **combinan agente + definición + módulo** en instrucciones ejecutab
 memory-bank/
 ├── laravel/                              # REUTILIZABLE ENTRE PROYECTOS
 │   ├── agents/                           # Metodología de desarrollo
-│   │   ├── agent-contracts.md            # Contratos, Data, VOs, Enums
-│   │   ├── agent-actions.md              # Actions y Tests Unitarios
-│   │   ├── agent-persistence.md          # Repositorios y Persistencia
-│   │   ├── agent-http.md                 # HTTP, Filament y Tests Feature
-│   │   └── agent-events.md               # Events, Listeners y Jobs
+│   │   ├── agent-a-contracts.md            # Contratos, Data, VOs, Enums
+│   │   ├── agent-b-actions.md              # Actions y Tests Unitarios
+│   │   ├── agent-c-persistence.md          # Repositorios y Persistencia
+│   │   ├── agent-d-http.md                 # HTTP, Filament y Tests Feature
+│   │   └── agent-e-events.md               # Events, Listeners y Jobs
 │   │
 │   ├── conventions/                      # Convenciones técnicas
 │   │   ├── conventions.md                # Convenciones generales
