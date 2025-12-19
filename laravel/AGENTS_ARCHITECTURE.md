@@ -77,11 +77,11 @@ Las tareas **combinan agente + definición + módulo** en instrucciones ejecutab
 memory-bank/
 ├── laravel/                              # REUTILIZABLE ENTRE PROYECTOS
 │   ├── agents/                           # Metodología de desarrollo
-│   │   ├── agente-a.md                   # Contratos, Data, VOs, Enums
-│   │   ├── agente-b.md                   # Actions y Tests Unitarios
-│   │   ├── agente-c.md                   # Repositorios y Persistencia
-│   │   ├── agente-d.md                   # HTTP, Filament y Tests Feature
-│   │   └── agente-e.md                   # Events, Listeners y Jobs
+│   │   ├── agent-contracts.md            # Contratos, Data, VOs, Enums
+│   │   ├── agent-actions.md              # Actions y Tests Unitarios
+│   │   ├── agent-persistence.md          # Repositorios y Persistencia
+│   │   ├── agent-http.md                 # HTTP, Filament y Tests Feature
+│   │   └── agent-events.md               # Events, Listeners y Jobs
 │   │
 │   ├── conventions/                      # Convenciones técnicas
 │   │   ├── conventions.md                # Convenciones generales
@@ -159,13 +159,14 @@ memory-bank/
 
 ---
 
-### Agente D: HTTP, Filament y Tests Feature
+### Agente D: HTTP, Livewire/Volt, Filament y Tests Feature
 
 **Implementar puntos de entrada del sistema**
 
 - Controllers Web/API
 - Form Requests
 - API Resources
+- Livewire Components y Volt Pages
 - Filament Resources y Pages
 - Rutas
 - Tests Feature y Smoke Tests
@@ -264,7 +265,7 @@ Cada tarea debe referenciar:
 
 ```bash
 # Leer los archivos referenciados
-cat laravel/agents/agente-a.md
+cat laravel/agents/agent-contracts.md
 cat mi-proyecto/project_definition.md
 cat mi-proyecto/modules/orders-module.md
 cat mi-proyecto/tasks/orders/001-contracts.md
@@ -330,7 +331,7 @@ code = generate(
 ---
 task_id: "001"
 title: "{Module} - {Phase}"
-agent: "@laravel/agents/agente-{x}.md"
+agent: "@laravel/agents/agent-{name}.md"
 project: "@{proyecto}/project_definition.md"
 module:
   - "@{proyecto}/modules/{module}-module.md"
@@ -436,9 +437,9 @@ status: "pending|in_progress|completed"
 
 ```
 
-agente-a-ecommerce.md
-agente-a-blog.md
-agente-a-crm.md
+agent-contracts-ecommerce.md
+agent-contracts-blog.md
+agent-contracts-crm.md
 
 ```
 
@@ -470,7 +471,7 @@ title: "Crear Orders Module"
 ### ✅ SÍ: Composición Clara
 
 ```
-laravel/agents/agente-a.md (genérico)
+laravel/agents/agent-contracts.md (genérico)
   +
 ecommerce/project_definition.md
   +
@@ -520,11 +521,11 @@ vim mi-proyecto/modules/{module}-module.md
 mkdir -p mi-proyecto/tasks/{module}
 
 # 7. Crear tareas siguiendo el orden de agentes
-touch mi-proyecto/tasks/{module}/001-contracts.md      # Agente A
-touch mi-proyecto/tasks/{module}/002-actions.md        # Agente B
-touch mi-proyecto/tasks/{module}/003-persistence.md    # Agente C
-touch mi-proyecto/tasks/{module}/004-http-filament.md  # Agente D
-touch mi-proyecto/tasks/{module}/005-events.md         # Agente E (opcional)
+touch mi-proyecto/tasks/{module}/001-contracts.md      # agent-contracts
+touch mi-proyecto/tasks/{module}/002-actions.md        # agent-actions
+touch mi-proyecto/tasks/{module}/003-persistence.md    # agent-persistence
+touch mi-proyecto/tasks/{module}/004-http-livewire-filament.md  # agent-http
+touch mi-proyecto/tasks/{module}/005-events.md         # agent-events (opcional)
 
 # 8. Crear índice de tareas
 touch mi-proyecto/tasks/README.md
@@ -581,7 +582,7 @@ memory-bank/
         │   ├── 001-contracts.md
         │   ├── 002-actions.md
         │   ├── 003-persistence.md
-        │   ├── 004-http-filament.md
+        │   ├── 004-http-livewire-filament.md
         │   └── 005-events.md
         │
         ├── catalog/
@@ -670,7 +671,7 @@ last_updated: "2025-12-18"
 Las tareas pueden especificar versión del agente:
 
 ```yaml
-agent: "@laravel/agents/agente-a.md@1.0"
+agent: "@laravel/agents/agent-contracts.md@1.0"
 ```
 
 Si no se especifica, se usa la última versión.
@@ -689,7 +690,7 @@ agents create-project mi-proyecto
 agents create-module mi-proyecto orders
 
 # Crear task
-agents create-task mi-proyecto orders 001-contracts --agent=a
+agents create-task mi-proyecto orders 001-contracts --agent=contracts
 
 # Ejecutar task
 agents run mi-proyecto/tasks/orders/001-contracts.md

@@ -63,7 +63,7 @@ Definir la **frontera pública del módulo** mediante tipos y contratos.
 Interfaces, Data Objects, Value Objects, Enums → **Consumidos por Agente B**
 
 ### 📖 Referencia
-[`agente-a.md`](agente-a.md)
+[`agent-contracts.md`](agent-contracts.md)
 
 ---
 
@@ -107,7 +107,7 @@ Del Agente A:
 Actions implementadas, Excepciones de dominio → **Consumidos por Agente C y posteriores**
 
 ### 📖 Referencia
-[`agente-b.md`](agente-b.md)
+[`agent-actions.md`](agent-actions.md)
 
 ---
 
@@ -154,7 +154,7 @@ Del Agente B:
 Modelos Eloquent, Repositorios, Migraciones, Factories → **Consumidos por Agente D y posteriores**
 
 ### 📖 Referencia
-[`agente-c.md`](agente-c.md)
+[`agent-persistence.md`](agent-persistence.md)
 
 ---
 
@@ -197,7 +197,7 @@ Del Agente C:
 Endpoints HTTP funcionales, UI administrativa → **Disponible para usuarios**
 
 ### 📖 Referencia
-[`agente-d.md`](agente-d.md)
+[`agent-http.md`](agent-http.md)
 
 ---
 
@@ -237,7 +237,7 @@ Del Agente C:
 Sistema de eventos funcional → **Comunicación entre módulos**
 
 ### 📖 Referencia
-(Pendiente: `agente-e.md`)
+(Pendiente: `agent-events.md`)
 
 ---
 
@@ -426,9 +426,9 @@ final class ProductCreatedListener
 - **Convenciones del proyecto**: [`conventions.md`](../conventions/conventions.md)
 - **Arquitectura de módulos**: [`modules.md`](../conventions/modules.md)
 - **Value Objects**: [`value-objects.md`](../conventions/value-objects.md)
-- **Agente A**: [`agente-a.md`](agente-a.md)
-- **Agente B**: [`agente-b.md`](agente-b.md)
-- **Agente C**: [`agente-c.md`](agente-c.md)
+- **Agent Contracts**: [`agent-contracts.md`](agent-contracts.md)
+- **Agent Actions**: [`agent-actions.md`](agent-actions.md)
+- **Agent Persistence**: [`agent-persistence.md`](agent-persistence.md)
 
 ---
 
