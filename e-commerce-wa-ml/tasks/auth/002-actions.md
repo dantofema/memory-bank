@@ -32,27 +32,86 @@ Las Actions implementan los casos de uso del módulo Auth siguiendo el patrón C
 
 ## 📦 Artefactos a Crear
 
-### 1. Action Command: AuthenticateMerchantAction
+### 1. Interfaces de Comunicación (Contratos para Actions)
 
-**Ubicación:** `Modules/Auth/App/Actions/AuthenticateMerchantAction.php`
+**Ubicación:** `Modules/Auth/Contracts/Commands/`
 
 **Especificaciones:**
 
 ```php
-namespace Modules\Auth\App\Actions;
+namespace Modules\Auth\Contracts\Commands;
 
+use Modules\Auth\Data\AuthenticateData;
+use Modules\Auth\Data\AuthResult;
+
+interface AuthenticateMerchantInterface
+{
+    /**
+     * Ejecuta la autenticación de un merchant
+     */
+    public function execute(AuthenticateData $data): AuthResult;
+}
+```
+
+```php
+namespace Modules\Auth\Contracts\Commands;
+
+use App\Models\User;
+
+interface LogoutMerchantInterface
+{
+    /**
+     * Ejecuta el logout de un merchant autenticado
+     */
+    public function execute(User $user): void;
+}
+```
+
+```php
+namespace Modules\Auth\Contracts\Queries;
+
+interface ValidateCredentialsInterface
+{
+    /**
+     * Valida credenciales sin crear sesión
+     */
+    public function execute(string $email, string $password): bool;
+}
+```
+
+**Reglas de Negocio:**
+- Interfaces obligatorias para comunicación entre módulos
+- Garantizan desacoplamiento y permiten mockeo eficiente
+- Facilitan testing unitario sin dependencias concretas
+
+---
+
+### 2. Action Command: AuthenticateMerchantAction
+
+**Ubicación:** `Modules/Auth/Actions/Commands/AuthenticateMerchantAction.php`
+
+**Especificaciones:**
+
+```php
+namespace Modules\Auth\Actions\Commands;
+
+use Modules\Auth\Contracts\Commands\AuthenticateMerchantInterface;
+use Modules\Auth\Contracts\Repositories\MerchantRepositoryInterface;
 use Modules\Auth\Data\AuthenticateData;
 use Modules\Auth\Data\AuthResult;
 use Modules\Auth\Events\UserLoginEvent;
 use Modules\Auth\Exceptions\InvalidCredentialsException;
 use Modules\Auth\ValueObjects\Email;
-use App\Models\User;
+use Modules\Auth\ValueObjects\HashedPassword;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
-final class AuthenticateMerchantAction
+final readonly class AuthenticateMerchantAction implements AuthenticateMerchantInterface
 {
+    public function __construct(
+        private MerchantRepositoryInterface $merchantRepository,
+    ) {}
+
     /**
      * Ejecuta la autenticación de un merchant
      *
@@ -65,46 +124,38 @@ final class AuthenticateMerchantAction
         // 1. Crear Email VO desde string (valida formato)
         $email = Email::fromString($data->email);
         
-        // 2. Buscar usuario por email normalizado
-        $user = $this->findUserByEmail($email);
+        // 2. Buscar usuario por email normalizado (mediante repositorio)
+        $merchantData = $this->merchantRepository->findByEmail($email);
         
         // 3. Si usuario no existe, retornar error genérico (prevenir enumeración)
-        if (!$user) {
+        if ($merchantData === null) {
             return AuthResult::failure('Credenciales inválidas');
         }
         
-        // 4. Verificar contraseña
-        if (!Hash::check($data->password, $user->password)) {
+        // 4. Verificar contraseña usando HashedPassword VO
+        if (!$merchantData->password->verify($data->password)) {
             return AuthResult::failure('Credenciales inválidas');
         }
         
-        // 5. Crear sesión
-        Auth::login($user, $data->remember);
+        // 5. Crear sesión (Auth facade recibe ID del merchant)
+        Auth::loginUsingId($merchantData->id->value(), $data->remember);
         
-        // 6. Si remember=true, generar y guardar remember_token
+        // 6. Si remember=true, generar y guardar remember_token mediante repositorio
         if ($data->remember) {
-            $user->remember_token = Str::random(60);
-            $user->save();
+            $rememberToken = Str::random(60);
+            $this->merchantRepository->updateRememberToken($merchantData->id, $rememberToken);
         }
         
         // 7. Disparar evento UserLoginEvent
         event(new UserLoginEvent(
-            user_id: $user->id,
+            user_id: $merchantData->id->value(),
             email: $email,
             ip_address: request()->ip(),
             logged_in_at: now()
         ));
         
         // 8. Retornar AuthResult exitoso
-        return AuthResult::success($user, 'Bienvenido de vuelta');
-    }
-    
-    /**
-     * Busca un usuario por email normalizado
-     */
-    private function findUserByEmail(Email $email): ?User
-    {
-        return User::where('email', $email->normalized)->first();
+        return AuthResult::success($merchantData, 'Bienvenido de vuelta');
     }
 }
 ```
@@ -113,30 +164,38 @@ final class AuthenticateMerchantAction
 - Email VO valida formato automáticamente en constructor
 - Contraseña no puede estar vacía
 - Usuario debe existir en la base de datos
-- Verificación de password con Hash::check()
+- **Verificación de password mediante HashedPassword VO (NO Hash::check() directo)**
 - Mensaje de error genérico para prevenir enumeración de usuarios
 - Remember token generado solo si remember=true
 - Evento UserLoginEvent disparado después de login exitoso
 - Session regeneration para prevenir session fixation
+- **Comunicación mediante MerchantRepositoryInterface (NO acceso directo a Eloquent)**
 
 ---
 
-### 2. Action Command: LogoutMerchantAction
+### 3. Action Command: LogoutMerchantAction
 
-**Ubicación:** `Modules/Auth/App/Actions/LogoutMerchantAction.php`
+**Ubicación:** `Modules/Auth/Actions/Commands/LogoutMerchantAction.php`
 
 **Especificaciones:**
 
 ```php
-namespace Modules\Auth\App\Actions;
+namespace Modules\Auth\Actions\Commands;
 
+use Modules\Auth\Contracts\Commands\LogoutMerchantInterface;
+use Modules\Auth\Contracts\Repositories\MerchantRepositoryInterface;
 use Modules\Auth\Events\UserLogoutEvent;
 use Modules\Auth\ValueObjects\Email;
+use Modules\Auth\ValueObjects\MerchantId;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
-final class LogoutMerchantAction
+final readonly class LogoutMerchantAction implements LogoutMerchantInterface
 {
+    public function __construct(
+        private MerchantRepositoryInterface $merchantRepository,
+    ) {}
+
     /**
      * Ejecuta el logout de un merchant autenticado
      *
@@ -146,16 +205,15 @@ final class LogoutMerchantAction
     public function execute(User $user): void
     {
         // 1. Capturar datos antes de invalidar sesión
-        $userId = $user->id;
+        $merchantId = MerchantId::fromString($user->id);
         $email = $user->email; // Ya es Email VO por el Cast
         
-        // 2. Revocar remember_token en base de datos
-        $user->remember_token = null;
-        $user->save();
+        // 2. Revocar remember_token mediante repositorio
+        $this->merchantRepository->updateRememberToken($merchantId, null);
         
         // 3. Disparar evento UserLogoutEvent
         event(new UserLogoutEvent(
-            user_id: $userId,
+            user_id: $merchantId->value(),
             email: $email,
             logged_out_at: now()
         ));
@@ -172,29 +230,34 @@ final class LogoutMerchantAction
 
 **Reglas de Negocio:**
 - Usuario debe estar autenticado
-- Remember token se revoca (set to null)
+- Remember token se revoca (set to null) **mediante repositorio**
 - Sesión se invalida completamente
 - Token CSRF se regenera para seguridad
 - Evento UserLogoutEvent disparado antes de invalidar sesión
 - Cookies de sesión limpiadas automáticamente por Laravel
+- **NO acceso directo a Eloquent - usar MerchantRepositoryInterface**
 
 ---
 
-### 3. Action Query: ValidateCredentialsAction
+### 4. Action Query: ValidateCredentialsAction
 
-**Ubicación:** `Modules/Auth/App/Actions/ValidateCredentialsAction.php`
+**Ubicación:** `Modules/Auth/Actions/Queries/ValidateCredentialsAction.php`
 
 **Especificaciones:**
 
 ```php
-namespace Modules\Auth\App\Actions;
+namespace Modules\Auth\Actions\Queries;
 
+use Modules\Auth\Contracts\Queries\ValidateCredentialsInterface;
+use Modules\Auth\Contracts\Repositories\MerchantRepositoryInterface;
 use Modules\Auth\ValueObjects\Email;
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 
-final class ValidateCredentialsAction
+final readonly class ValidateCredentialsAction implements ValidateCredentialsInterface
 {
+    public function __construct(
+        private MerchantRepositoryInterface $merchantRepository,
+    ) {}
+
     /**
      * Valida credenciales sin crear sesión
      *
@@ -212,24 +275,16 @@ final class ValidateCredentialsAction
             return false;
         }
         
-        // 2. Buscar usuario por email normalizado
-        $user = $this->findUserByEmail($emailVo);
+        // 2. Buscar usuario por email normalizado (mediante repositorio)
+        $merchantData = $this->merchantRepository->findByEmail($emailVo);
         
         // 3. Si no existe, retornar false
-        if (!$user) {
+        if ($merchantData === null) {
             return false;
         }
         
-        // 4. Verificar contraseña con Hash::check()
-        return Hash::check($password, $user->password);
-    }
-    
-    /**
-     * Busca un usuario por email normalizado
-     */
-    private function findUserByEmail(Email $email): ?User
-    {
-        return User::where('email', $email->normalized)->first();
+        // 4. Verificar contraseña usando HashedPassword VO
+        return $merchantData->password->verify($password);
     }
 }
 ```
@@ -241,10 +296,12 @@ final class ValidateCredentialsAction
 - Útil para verificaciones previas (ej: antes de operaciones sensibles)
 - No lanza excepciones (retorna false si email inválido)
 - No dispara eventos (validación silenciosa)
+- **Verificación mediante HashedPassword VO (NO Hash::check() directo)**
+- **Comunicación mediante MerchantRepositoryInterface**
 
 ---
 
-### 4. Excepción de Dominio: InvalidCredentialsException
+### 5. Excepción de Dominio: InvalidCredentialsException
 
 **Ubicación:** `Modules/Auth/App/Exceptions/InvalidCredentialsException.php`
 
@@ -278,7 +335,7 @@ final class InvalidCredentialsException extends Exception
 
 ---
 
-### 5. Excepción de Dominio: EmailNotVerifiedException (Opcional)
+### 6. Excepción de Dominio: EmailNotVerifiedException (Opcional)
 
 **Ubicación:** `Modules/Auth/App/Exceptions/EmailNotVerifiedException.php`
 
@@ -780,24 +837,28 @@ describe('ValidateCredentialsAction', function () {
 - [ ] ValidateCredentialsAction no dispara eventos
 
 ### Técnicos
-- [ ] Todas las Actions son `final class`
+- [ ] Todas las Actions son `final readonly class`
 - [ ] Cada Action tiene un solo método público `execute()`
+- [ ] **Todas las Actions implementan su interfaz correspondiente**
+- [ ] **Interfaces creadas en `Contracts/Commands/` y `Contracts/Queries/`**
 - [ ] Tipado fuerte completo (sin mixed, sin any)
-- [ ] Actions no dependen de framework (excepto facades necesarias)
+- [ ] **Inyección de dependencias mediante constructor (repositorios como interfaces)**
+- [ ] **NO acceso directo a Eloquent - solo mediante repositorios**
 - [ ] Exceptions de dominio con factory methods
 - [ ] Tests con Pest 4 (describe/it syntax)
 - [ ] Cobertura de tests: 100% de las Actions
 - [ ] PHPStan level 6+ sin errores
 - [ ] Pint ejecutado sin advertencias
-- [ ] Tests con mocks donde sea apropiado
+- [ ] **Tests con mocks de repositorios (NO factories de Eloquent en tests unitarios)**
 
 ### Seguridad
 - [ ] Mensajes de error genéricos (no revelan existencia de usuario)
-- [ ] Passwords verificados con Hash::check()
+- [ ] **Passwords verificados con `HashedPassword->verify()` (NO `Hash::check()` directo)**
 - [ ] Remember tokens generados con Str::random(60)
 - [ ] Session regeneration después de login
 - [ ] CSRF token regenerado después de logout
 - [ ] Eventos incluyen IP address para auditoría
+- [ ] **Encapsulación de lógica de seguridad en Value Objects**
 
 ### Documentación
 - [ ] Docblocks en clases y métodos públicos
@@ -831,23 +892,31 @@ describe('ValidateCredentialsAction', function () {
 ## 📝 Notas de Implementación
 
 ### AuthenticateMerchantAction
-- Usar `Auth::login($user, $remember)` en lugar de manual session creation
+- **CRÍTICO:** Usar `HashedPassword->verify()` en lugar de `Hash::check()` directo
+- Comunicar con repositorio mediante `MerchantRepositoryInterface`
+- Usar `Auth::loginUsingId()` en lugar de `Auth::login()` para trabajar con VOs
 - Remember token: `Str::random(60)` es el estándar de Laravel
 - Mensaje genérico idéntico para "usuario no existe" y "password incorrecta"
 - Event debe dispararse DESPUÉS de crear la sesión
 - Capturar IP con `request()->ip()` para auditoría
+- **Implementar interfaz `AuthenticateMerchantInterface`**
 
 ### LogoutMerchantAction
 - Orden importante: revocar token → disparar evento → logout
 - `session()->invalidate()` limpia todos los datos de sesión
 - `session()->regenerateToken()` previene CSRF attacks
 - Laravel maneja cookies automáticamente con `Auth::logout()`
+- **Usar repositorio para actualizar remember_token (NO acceso directo a Eloquent)**
+- **Implementar interfaz `LogoutMerchantInterface`**
 
 ### ValidateCredentialsAction
+- **CRÍTICO:** Usar `HashedPassword->verify()` en lugar de `Hash::check()` directo
 - NO usar `Auth::attempt()` porque crearía sesión
 - Catch exceptions de Email VO y retornar false (no propagarlas)
 - No logear nada (validación silenciosa)
 - Útil para "confirm password" antes de acciones sensibles
+- **Comunicar con repositorio mediante `MerchantRepositoryInterface`**
+- **Implementar interfaz `ValidateCredentialsInterface`**
 
 ### Testing Strategy
 - Usar `User::factory()` en todos los tests

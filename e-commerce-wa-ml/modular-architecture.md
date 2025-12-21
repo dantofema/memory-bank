@@ -135,7 +135,7 @@ graph TB
 
 ```mermaid
 graph TB
-    AUTH[Auth]
+    FILAMENT[FilamentPHP Auth]
     SECURITY[Security]
     B_CATALOG[Backoffice: Catalog]
     B_ORDERS[Backoffice: Orders]
@@ -144,10 +144,10 @@ graph TB
     F_CATALOG[Frontend: Catalog]
     F_CART[Frontend: Cart]
     ORDERS[Backend: Orders]
-    AUTH -.->|Protege| B_CATALOG
-    AUTH -.->|Protege| B_ORDERS
-    AUTH -.->|Protege| B_PAYMENTS
-    AUTH -.->|Protege| B_REPORTS
+    FILAMENT -.->|Protege| B_CATALOG
+    FILAMENT -.->|Protege| B_ORDERS
+    FILAMENT -.->|Protege| B_PAYMENTS
+    FILAMENT -.->|Protege| B_REPORTS
     SECURITY -.->|Protege| F_CATALOG
     SECURITY -.->|Protege| F_CART
     SECURITY -.->|Rate limiting| ORDERS
@@ -167,51 +167,42 @@ Organizados según el **orden de desarrollo** (Fase 1 → Fase 4).
 
 ---
 
-### 🔐 Auth (Autenticación) - TRANSVERSAL
+### 🔐 Autenticación (FilamentPHP) - TRANSVERSAL
 
 **Fase**: 1 - Fundamentos
 
 #### Responsabilidad
 
-Autenticación y control de acceso exclusivamente para el **backoffice de Filament**. El frontend público no requiere
-autenticación.
+La autenticación se **delega completamente a FilamentPHP**. No existe un módulo Auth separado. FilamentPHP maneja toda
+la autenticación y control de acceso para el backoffice. El frontend público no requiere autenticación.
 
 #### Alcance
 
-**Expone**:
+**FilamentPHP proporciona**:
 
 - Login de merchants
-- Middleware de autenticación para Filament
+- Middleware de autenticación integrado
 - Gestión de sesiones seguras
+- Panel de configuración de usuarios
 
-**NO expone**:
+**NO gestiona**:
 
 - Registro de usuarios finales
 - Autenticación en frontend público
 - Sistema de roles/permisos complejos (single-tenant, un solo merchant)
 
-#### Comunicaciones
+#### Configuración
 
-##### Interfaces que expone
-
-```php
-// No expone interfaces públicas - solo middleware interno
-```
-
-##### Eventos que emite
-
-- Ninguno (fuera del alcance del MVP)
-
-##### Dependencias
-
-- **Ninguna**: módulo base sin dependencias externas
+- Utiliza el modelo `User` de Laravel por defecto
+- Configuración en `config/filament.php`
+- Guards y providers estándar de Laravel
 
 #### Restricciones
 
 - ❌ **NO gestiona cuentas de clientes finales** (sin registro público)
 - ❌ **NO implementa roles complejos** (single-tenant: un merchant por instancia)
 - ✅ **Solo protege el backoffice de Filament**
-- ✅ **Las rutas públicas de Livewire/Volt NO pasan por Auth**
+- ✅ **Las rutas públicas de Livewire/Volt NO pasan por autenticación**
 
 ---
 
@@ -891,24 +882,25 @@ end note
 
 ## 6. Matriz de Dependencias entre Módulos
 
-| Módulo   | Depende de                | Consumido por               | Eventos que emite             | Eventos que consume                      |
-|----------|---------------------------|-----------------------------|-------------------------------|------------------------------------------|
-| Auth     | -                         | Todos (backoffice)          | -                             | -                                        |
-| Security | -                         | Todos (transversal)         | RateLimitExceededEvent        | -                                        |
-| Catalog  | -                         | Cart, Orders, Reports       | ProductStockLowEvent          | -                                        |
-| Cart     | Catalog                   | Orders                      | -                             | -                                        |
-| Orders   | Catalog, Payments         | Reports, WhatsApp, Payments | OrderCreatedEvent             | PaymentConfirmedEvent                    |
-| Payments | Orders                    | Orders, WhatsApp, Reports   | PaymentConfirmedEvent         | -                                        |
-| WhatsApp | -                         | -                           | WhatsAppNotificationSentEvent | OrderCreatedEvent, PaymentConfirmedEvent |
-| Reports  | Orders, Payments, Catalog | -                           | -                             | -                                        |
+| Módulo        | Depende de                | Consumido por               | Eventos que emite             | Eventos que consume                      |
+|---------------|---------------------------|-----------------------------|-------------------------------|------------------------------------------|
+| FilamentPHP   | -                         | Todos (backoffice)          | -                             | -                                        |
+| Security      | -                         | Todos (transversal)         | RateLimitExceededEvent        | -                                        |
+| Catalog       | -                         | Cart, Orders, Reports       | ProductStockLowEvent          | -                                        |
+| Cart          | Catalog                   | Orders                      | -                             | -                                        |
+| Orders        | Catalog, Payments         | Reports, WhatsApp, Payments | OrderCreatedEvent             | PaymentConfirmedEvent                    |
+| Payments      | Orders                    | Orders, WhatsApp, Reports   | PaymentConfirmedEvent         | -                                        |
+| WhatsApp      | -                         | -                           | WhatsAppNotificationSentEvent | OrderCreatedEvent, PaymentConfirmedEvent |
+| Reports       | Orders, Payments, Catalog | -                           | -                             | -                                        |
 
 ---
 
 ## 7. Resumen de Restricciones por Módulo
 
-### Auth
+### FilamentPHP (Autenticación)
 
 - ✅ Solo protege backoffice
+- ✅ Autenticación delegada a FilamentPHP
 - ❌ No gestiona usuarios finales
 - ❌ No implementa roles complejos
 
@@ -1040,7 +1032,7 @@ final readonly class OrderCreatedEvent
 
 El proyecto debe implementarse siguiendo el **orden de desarrollo** definido:
 
-1. **Fase 1 - Fundamentos**: Auth → Catalog
+1. **Fase 1 - Fundamentos**: FilamentPHP (configuración inicial) → Catalog
 2. **Fase 2 - MVP Funcional**: Cart → Orders → Security
 3. **Fase 3 - Integraciones**: WhatsApp → Payments
 4. **Fase 4 - Promociones y Reportes**: Promotions → Reports
@@ -1063,4 +1055,4 @@ Este documento debe actualizarse cuando:
 - Se modifiquen restricciones de negocio
 - Se agreguen nuevos diagramas
 
-**Última actualización**: 2025-12-19
+**Última actualización**: 2025-12-21

@@ -1,10 +1,21 @@
-# Task 003: Models, Repositories and Persistence
+---
+task_id: "whatsapp-003-persistence"
+module: "WhatsApp"
+agent: "Agente C - Repositorios, Modelos y Persistencia"
+title: "WhatsApp - Modelos, Repositorios y Persistencia"
+priority: "HIGH"
+estimated_time: "5 hours"
+dependencies:
+  - "whatsapp-001-contracts"
+status: "pending"
+references:
+  - "@laravel/agents/agent-c-persistence.md"
+  - "@e-commerce-wa-ml/whatsapp/domain_model.md"
+  - "@laravel/conventions/conventions.md"
+phase: "Fase 2 - Persistencia"
+---
 
-**Agent:** Agente C - Repositorios, Modelos y Persistencia  
-**Module:** WhatsApp  
-**Priority:** HIGH  
-**Estimated Time:** 5 hours  
-**Dependencies:** 001-contracts
+# Task 003: Models, Repositories and Persistence
 
 ## Objective
 

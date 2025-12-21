@@ -21,6 +21,48 @@ phase: "Fase 2 - Persistencia"
 
 Implementar la capa de persistencia del módulo Auth: modelo User con Eloquent Casts para Value Objects, migraciones de base de datos, y Factory para testing. Esta capa maneja el almacenamiento y recuperación de datos de autenticación.
 
+## ⚠️ ISSUES CRÍTICOS RESUELTOS
+
+Esta task implementa correcciones obligatorias identificadas en la revisión de arquitectura:
+
+### 1. Cast para MerchantName (CRÍTICO)
+**Problema:** Solo se había planificado EmailCast, pero MerchantName también requiere un Cast.
+
+**Solución:**
+- Implementar `MerchantNameCast` que asegure la reconstrucción del VO desde la base de datos
+- Garantizar normalización: trim, collapse multiple spaces
+- Validar invariantes del VO en persistencia
+
+**Riesgo sin Cast:**
+- ❌ Base de datos almacenaría nombres sin normalizar
+- ❌ Inconsistencia: "Test  Merchant" vs "Test Merchant"
+- ❌ Ruptura de invariante de MerchantName (2-100 chars, normalized)
+- ❌ Tests podrían pasar con datos inválidos en DB
+
+### 2. Validación de Tipos en Casts (CRÍTICO)
+**Problema:** Los Casts deben validar tipos estrictamente para prevenir persistencia de datos inválidos.
+
+**Solución:**
+- Validación obligatoria en `get()`: tipo string, no null
+- Validación obligatoria en `set()`: MerchantName VO o string válido
+- Lanzar `InvalidArgumentException` si tipos incorrectos
+- Delegar validación de invariantes al VO
+
+**Riesgo sin validación:**
+- ❌ Persistencia de tipos incorrectos (int, array, etc.)
+- ❌ Null values rompiendo constraints del dominio
+- ❌ Bypass de validaciones del VO
+- ❌ Errores silenciosos en producción
+
+### 3. Consistencia de Persistencia
+**Objetivo:** Garantizar que todos los Value Objects se persisten normalizados.
+
+**Implementación:**
+- EmailCast: normaliza a lowercase, trim
+- MerchantNameCast: normaliza con trim, single spaces
+- Tests de roundtrip: crear → guardar → recargar → validar normalización
+- Tests de edge cases: validar rechazo de datos inválidos
+
 ## 📋 Contexto
 
 El modelo User es el aggregate root del módulo Auth. Usa Eloquent Casts para mapear Value Objects a/desde la base de datos, garantizando que los datos siempre cumplan las invariantes del dominio.
@@ -32,6 +74,25 @@ El modelo User es el aggregate root del módulo Auth. Usa Eloquent Casts para ma
 - **Security:** Password hashing, indexes (líneas 562-590)
 
 ## 📦 Artefactos a Crear
+
+**Total:** 6 archivos principales + 5 suites de tests
+
+### Archivos de Código
+1. **User Model** (`app/Models/User.php`) - Aggregate root con VOs
+2. **EmailCast** (`app/Casts/EmailCast.php`) - Cast para Email VO
+3. **MerchantNameCast** (`app/Casts/MerchantNameCast.php`) - ⚠️ CRÍTICO: Cast para MerchantName VO
+4. **Migration: users** (`database/migrations/..._create_users_table.php`)
+5. **Migration: sessions** (`database/migrations/..._create_sessions_table.php`)
+6. **UserFactory** (`database/factories/UserFactory.php`)
+
+### Tests
+1. **User Model Tests** - Lifecycle, casts, FilamentUser contract
+2. **EmailCast Tests** - Normalización, validación de tipos
+3. **MerchantNameCast Tests** - ⚠️ CRÍTICO: Normalización, validación de invariantes
+4. **Migration Tests** - Estructura DB, constraints, indexes
+5. **Factory Tests** - Estados, passwords, validaciones
+
+---
 
 ### 1. Modelo Eloquent: User
 
@@ -46,7 +107,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Modules\Auth\ValueObjects\Email;
+use Modules\Auth\ValueObjects\MerchantName;
 use App\Casts\EmailCast;
+use App\Casts\MerchantNameCast;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 
@@ -56,7 +119,7 @@ use Filament\Panel;
  * Represents a merchant with access to the Filament backoffice.
  *
  * @property int $id
- * @property string $name
+ * @property MerchantName $name
  * @property Email $email
  * @property string $password
  * @property \Carbon\Carbon|null $email_verified_at
@@ -98,6 +161,7 @@ final class User extends Authenticatable implements FilamentUser
     protected function casts(): array
     {
         return [
+            'name' => MerchantNameCast::class,
             'email' => EmailCast::class,
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
@@ -140,12 +204,14 @@ final class User extends Authenticatable implements FilamentUser
 ```
 
 **Reglas de Negocio:**
-- Email siempre es Email VO (gracias al Cast)
+- **Name es MerchantName VO** (gracias al MerchantNameCast)
+- Email siempre es Email VO (gracias al EmailCast)
 - Password siempre hasheado con bcrypt (cast 'hashed')
 - FilamentUser contract para acceso al backoffice
 - Single-tenant: todos los users son merchants
 - Email verification opcional (no bloqueante en MVP)
 - Factory obligatorio para testing
+- **Cast obligatorio para name:** Garantiza normalización y validación
 
 ---
 
@@ -212,12 +278,87 @@ final class EmailCast implements CastsAttributes
 - Siempre almacena email normalizado (lowercase, trim)
 - Acepta Email VO o string en set()
 - Siempre retorna Email VO en get()
-- Lanza excepciones si tipos inválidos
+- **VALIDACIÓN OBLIGATORIA:** Lanza excepciones si tipos inválidos
 - Null no permitido (email es required)
 
 ---
 
-### 3. Migration: create_users_table
+### 3. Eloquent Cast: MerchantNameCast
+
+**Ubicación:** `app/Casts/MerchantNameCast.php`
+
+> ⚠️ **CRÍTICO:** Cast obligatorio para MerchantName. Sin este Cast, la base de datos podría almacenar nombres sin normalizar, rompiendo la invariante del Value Object.
+
+**Especificaciones:**
+
+```php
+namespace App\Casts;
+
+use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
+use Illuminate\Database\Eloquent\Model;
+use Modules\Auth\ValueObjects\MerchantName;
+
+/**
+ * Cast Eloquent attribute to/from MerchantName Value Object
+ *
+ * Ensures merchant names are always normalized and validated
+ * when persisting to/from database.
+ *
+ * @implements CastsAttributes<MerchantName, string>
+ */
+final class MerchantNameCast implements CastsAttributes
+{
+    /**
+     * Cast the given value from database to MerchantName VO.
+     *
+     * @param array<string, mixed> $attributes
+     */
+    public function get(Model $model, string $key, mixed $value, array $attributes): MerchantName
+    {
+        if ($value === null) {
+            throw new \InvalidArgumentException('MerchantName cannot be null');
+        }
+
+        if (!is_string($value)) {
+            throw new \InvalidArgumentException('MerchantName must be a string');
+        }
+
+        return MerchantName::fromString($value);
+    }
+
+    /**
+     * Prepare the given value for storage in database.
+     *
+     * @param array<string, mixed> $attributes
+     */
+    public function set(Model $model, string $key, mixed $value, array $attributes): string
+    {
+        if ($value instanceof MerchantName) {
+            return $value->normalized;
+        }
+
+        if (is_string($value)) {
+            $name = MerchantName::fromString($value);
+            return $name->normalized;
+        }
+
+        throw new \InvalidArgumentException('Value must be MerchantName VO or string');
+    }
+}
+```
+
+**Reglas de Negocio:**
+- Siempre almacena nombre normalizado (trim, single spaces)
+- Acepta MerchantName VO o string en set()
+- Siempre retorna MerchantName VO en get()
+- **VALIDACIÓN OBLIGATORIA:** Lanza excepciones si tipos inválidos
+- **VALIDACIÓN OBLIGATORIA:** Valida longitud mínima/máxima (2-100 chars)
+- Null no permitido (name es required)
+- Previene persistencia de nombres sin normalizar
+
+---
+
+### 4. Migration: create_users_table
 
 **Ubicación:** `database/migrations/2024_01_01_000000_create_users_table.php`
 
@@ -269,7 +410,7 @@ return new class extends Migration
 
 ---
 
-### 4. Migration: create_sessions_table
+### 5. Migration: create_sessions_table
 
 **Ubicación:** `database/migrations/2024_01_01_000001_create_sessions_table.php`
 
@@ -316,7 +457,7 @@ return new class extends Migration
 
 ---
 
-### 5. Factory: UserFactory
+### 6. Factory: UserFactory
 
 **Ubicación:** `database/factories/UserFactory.php`
 
@@ -433,9 +574,18 @@ describe('User Model', function () {
         $user = User::factory()->make();
         
         expect($user)->toBeInstanceOf(User::class)
-            ->and($user->name)->toBeString()
+            ->and($user->name)->toBeInstanceOf(\Modules\Auth\ValueObjects\MerchantName::class)
             ->and($user->email)->toBeInstanceOf(\Modules\Auth\ValueObjects\Email::class)
             ->and($user->password)->toBeString();
+    });
+    
+    it('casts name to MerchantName VO', function () {
+        $user = User::factory()->create([
+            'name' => 'Test Merchant',
+        ]);
+        
+        expect($user->name)->toBeInstanceOf(\Modules\Auth\ValueObjects\MerchantName::class)
+            ->and($user->name->normalized)->toBe('Test Merchant');
     });
     
     it('casts email to Email VO', function () {
@@ -558,7 +708,119 @@ describe('EmailCast', function () {
 
 ---
 
-### Test 3: User Migration and Database
+### Test 3: MerchantNameCast
+
+**Ubicación:** `tests/Unit/Casts/MerchantNameCastTest.php`
+
+> ⚠️ **CRÍTICO:** Estos tests validan que MerchantName se normaliza y valida correctamente, previniendo inconsistencias en la base de datos.
+
+**Casos a cubrir:**
+
+```php
+use App\Casts\MerchantNameCast;
+use Modules\Auth\ValueObjects\MerchantName;
+use App\Models\User;
+
+describe('MerchantNameCast', function () {
+    it('casts string from database to MerchantName VO', function () {
+        $user = User::factory()->create([
+            'name' => 'Test Merchant',
+        ]);
+        
+        $user = User::find($user->id);
+        
+        expect($user->name)->toBeInstanceOf(MerchantName::class)
+            ->and($user->name->normalized)->toBe('Test Merchant');
+    });
+    
+    it('casts MerchantName VO to string for database', function () {
+        $name = MerchantName::fromString('Test Merchant');
+        
+        $user = User::factory()->create([
+            'name' => $name,
+        ]);
+        
+        expect($user->name)->toBeInstanceOf(MerchantName::class)
+            ->and($user->getAttributes()['name'])->toBe('Test Merchant');
+    });
+    
+    it('accepts string and converts to MerchantName VO', function () {
+        $user = User::factory()->create([
+            'name' => 'Original Name',
+        ]);
+        
+        $user->name = 'Updated Name';
+        $user->save();
+        
+        expect($user->fresh()->name->normalized)->toBe('Updated Name');
+    });
+    
+    it('normalizes merchant name when casting to database', function () {
+        $user = User::factory()->create([
+            'name' => '  Multiple   Spaces  Name  ',
+        ]);
+        
+        // Should normalize: trim and collapse multiple spaces
+        expect($user->getAttributes()['name'])->toBe('Multiple Spaces Name');
+    });
+    
+    it('throws exception for null merchant name', function () {
+        expect(fn() => User::factory()->create(['name' => null]))
+            ->toThrow(\InvalidArgumentException::class, 'MerchantName cannot be null');
+    });
+    
+    it('throws exception for invalid type in set', function () {
+        $cast = new MerchantNameCast();
+        $model = new User();
+        
+        expect(fn() => $cast->set($model, 'name', 123, []))
+            ->toThrow(\InvalidArgumentException::class, 'Value must be MerchantName VO or string');
+    });
+    
+    it('throws exception for invalid type in get', function () {
+        $cast = new MerchantNameCast();
+        $model = new User();
+        
+        expect(fn() => $cast->get($model, 'name', 123, []))
+            ->toThrow(\InvalidArgumentException::class, 'MerchantName must be a string');
+    });
+    
+    it('validates minimum length through VO', function () {
+        // MerchantName VO should validate min length
+        expect(fn() => User::factory()->create(['name' => 'A']))
+            ->toThrow(\InvalidArgumentException::class);
+    });
+    
+    it('validates maximum length through VO', function () {
+        // MerchantName VO should validate max length (100 chars)
+        $longName = str_repeat('A', 101);
+        
+        expect(fn() => User::factory()->create(['name' => $longName]))
+            ->toThrow(\InvalidArgumentException::class);
+    });
+    
+    it('preserves normalized invariant on persistence roundtrip', function () {
+        $originalName = '  Test   Merchant   Name  ';
+        $expectedNormalized = 'Test Merchant Name';
+        
+        $user = User::factory()->create(['name' => $originalName]);
+        
+        // Verify database has normalized value
+        expect($user->getAttributes()['name'])->toBe($expectedNormalized);
+        
+        // Verify VO has normalized value
+        expect($user->name->normalized)->toBe($expectedNormalized);
+        
+        // Verify after reload from DB
+        $user->refresh();
+        expect($user->name->normalized)->toBe($expectedNormalized);
+    });
+});
+```
+
+---
+
+### Test 4: User Migration and Database
 
 **Ubicación:** `tests/Feature/Database/UserMigrationTest.php`
 
@@ -631,7 +893,7 @@ describe('Sessions Migration', function () {
 
 ---
 
-### Test 4: UserFactory
+### Test 5: UserFactory
 
 **Ubicación:** `tests/Unit/Factories/UserFactoryTest.php`
 
@@ -705,6 +967,8 @@ describe('UserFactory', function () {
 
 ### Funcionales
 - [ ] User model se puede crear y persistir
+- [ ] **Name se convierte automáticamente a MerchantName VO**
+- [ ] **Name se normaliza antes de guardar en DB (trim, single spaces)**
 - [ ] Email se convierte automáticamente a Email VO
 - [ ] Email se normaliza antes de guardar en DB
 - [ ] Password se hashea automáticamente (cast 'hashed')
@@ -716,13 +980,18 @@ describe('UserFactory', function () {
 
 ### Técnicos
 - [ ] User model es `final class`
+- [ ] **MerchantNameCast implementa CastsAttributes correctamente**
+- [ ] **MerchantNameCast valida tipos y lanza excepciones**
 - [ ] EmailCast implementa CastsAttributes correctamente
-- [ ] Tipado fuerte completo en model y cast
-- [ ] Docblocks con `@property` en modelo
+- [ ] EmailCast valida tipos y lanza excepciones
+- [ ] Tipado fuerte completo en model y casts
+- [ ] Docblocks con `@property` en modelo (name: MerchantName, email: Email)
 - [ ] Migraciones ejecutan sin errores
 - [ ] Índices creados correctamente
 - [ ] Factory es `final class`
 - [ ] Tests con Pest 4 (describe/it syntax)
+- [ ] **Tests de MerchantNameCast con cobertura completa**
+- [ ] **Tests de validación de invariantes del VO**
 - [ ] Cobertura de tests: 100%
 - [ ] PHPStan level 6+ sin errores
 - [ ] Pint ejecutado sin advertencias
@@ -752,7 +1021,8 @@ describe('UserFactory', function () {
 
 # Ejecutar tests de persistencia
 ./vendor/bin/sail test tests/Unit/Models
-./vendor/bin/sail test tests/Unit/Casts
+./vendor/bin/sail test tests/Unit/Casts/EmailCastTest.php
+./vendor/bin/sail test tests/Unit/Casts/MerchantNameCastTest.php
 ./vendor/bin/sail test tests/Feature/Database
 
 # Análisis estático
@@ -778,13 +1048,25 @@ describe('UserFactory', function () {
 - FilamentUser contract required para backoffice
 - `canAccessPanel()` retorna true (single-tenant)
 - Cast 'hashed' para password (auto-hashing)
+- **Cast obligatorio para name (MerchantNameCast):** Garantiza normalización
+- Cast obligatorio para email (EmailCast): Garantiza normalización
 - NO soft deletes (single-tenant, un merchant)
+
+### MerchantNameCast
+- **CRÍTICO:** Sin este Cast, nombres sin normalizar romperían invariantes
+- Siempre almacena normalizado (trim, collapse multiple spaces)
+- Acepta MerchantName VO o string en set()
+- Convierte a MerchantName VO en get()
+- **Validación de tipos obligatoria:** Lanza excepciones si tipos inválidos
+- **Validación de invariantes:** Delega a MerchantName VO (min/max length)
+- No permite null (name es required)
+- Previene inconsistencias de persistencia
 
 ### EmailCast
 - Siempre almacena normalizado (lowercase, trim)
 - Acepta Email VO o string en set()
 - Convierte a Email VO en get()
-- Lanza excepciones si tipos inválidos
+- **Validación de tipos obligatoria:** Lanza excepciones si tipos inválidos
 - No permite null (email es required)
 
 ### Migraciones
@@ -812,9 +1094,15 @@ describe('UserFactory', function () {
 ### Edge Cases a Testear
 - Email duplicado (debe fallar)
 - Email null (debe fallar)
+- **Name null (debe fallar)**
+- **Name con múltiples espacios (debe normalizarse)**
+- **Name muy corto (<2 chars) (debe fallar)**
+- **Name muy largo (>100 chars) (debe fallar)**
+- **Name con tipo inválido (debe fallar)**
 - Password sin hashear (Factory debe hashear)
 - Sessions con user_id null (guest sessions)
 - Email con uppercase (debe normalizarse)
+- **Persistencia roundtrip: normalización debe mantenerse**
 
 ### Configuración Required
 Asegurarse de que `.env` tiene:

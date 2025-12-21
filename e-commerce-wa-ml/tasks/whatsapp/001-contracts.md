@@ -1,10 +1,20 @@
-# Task 001: Contracts, Data Objects, Value Objects and Enums
+---
+task_id: "whatsapp-001-contracts"
+module: "WhatsApp"
+agent: "Agente A - Contratos, Data, VOs y Enums"
+title: "WhatsApp - Contratos, Data Transfer Objects y Value Objects"
+priority: "HIGH"
+estimated_time: "6 hours"
+dependencies: []
+status: "pending"
+references:
+  - "@laravel/agents/agent-a-contracts.md"
+  - "@e-commerce-wa-ml/whatsapp/domain_model.md"
+  - "@laravel/conventions/value-objects.md"
+phase: "Fase 1 - Fundamentos"
+---
 
-**Agent:** Agente A - Contratos, Data, VOs y Enums  
-**Module:** WhatsApp  
-**Priority:** HIGH  
-**Estimated Time:** 6 hours  
-**Dependencies:** None
+# Task 001: Contracts, Data Objects, Value Objects and Enums
 
 ## Objective
 

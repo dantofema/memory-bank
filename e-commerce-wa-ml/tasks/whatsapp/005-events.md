@@ -1,10 +1,23 @@
-# Task 005: Events, Listeners and Jobs
+---
+task_id: "whatsapp-005-events"
+module: "WhatsApp"
+agent: "Agente E - Events, Listeners y Jobs"
+title: "WhatsApp - Events, Listeners y Jobs"
+priority: "HIGH"
+estimated_time: "6 hours"
+dependencies:
+  - "whatsapp-001-contracts"
+  - "whatsapp-002-actions"
+  - "whatsapp-003-persistence"
+status: "pending"
+references:
+  - "@laravel/agents/agent-e-events.md"
+  - "@e-commerce-wa-ml/whatsapp/domain_model.md"
+  - "@laravel/conventions/conventions.md"
+phase: "Fase 4 - Eventos"
+---
 
-**Agent:** Agente E - Events, Listeners y Jobs  
-**Module:** WhatsApp  
-**Priority:** HIGH  
-**Estimated Time:** 6 hours  
-**Dependencies:** 001-contracts, 002-actions, 003-persistence
+# Task 005: Events, Listeners and Jobs
 
 ## Objective
 

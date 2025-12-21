@@ -1,10 +1,21 @@
-# Task 002: Actions, Services and Business Logic
+---
+task_id: "whatsapp-002-actions"
+module: "WhatsApp"
+agent: "Agente B - Actions y Tests Unitarios"
+title: "WhatsApp - Actions, Services y Lógica de Negocio"
+priority: "HIGH"
+estimated_time: "8 hours"
+dependencies:
+  - "whatsapp-001-contracts"
+status: "pending"
+references:
+  - "@laravel/agents/agent-b-actions.md"
+  - "@e-commerce-wa-ml/whatsapp/domain_model.md"
+  - "@laravel/conventions/conventions.md"
+phase: "Fase 2 - Lógica de Negocio"
+---
 
-**Agent:** Agente B - Actions y Tests Unitarios  
-**Module:** WhatsApp  
-**Priority:** HIGH  
-**Estimated Time:** 8 hours  
-**Dependencies:** 001-contracts
+# Task 002: Actions, Services and Business Logic
 
 ## Objective
 

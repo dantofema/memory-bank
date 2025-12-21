@@ -1,10 +1,23 @@
-# Task 004: Console Commands, Filament and Feature Tests
+---
+task_id: "whatsapp-004-console-filament"
+module: "WhatsApp"
+agent: "Agente D - HTTP, Livewire/Volt, Filament y Tests Feature"
+title: "WhatsApp - Console Commands, Filament y Tests Feature"
+priority: "HIGH"
+estimated_time: "7 hours"
+dependencies:
+  - "whatsapp-001-contracts"
+  - "whatsapp-002-actions"
+  - "whatsapp-003-persistence"
+status: "pending"
+references:
+  - "@laravel/agents/agent-d-http.md"
+  - "@e-commerce-wa-ml/whatsapp/domain_model.md"
+  - "@laravel/conventions/conventions.md"
+phase: "Fase 3 - Presentación"
+---
 
-**Agent:** Agente D - HTTP, Livewire/Volt, Filament y Tests Feature  
-**Module:** WhatsApp  
-**Priority:** HIGH  
-**Estimated Time:** 7 hours  
-**Dependencies:** 001-contracts, 002-actions, 003-persistence
+# Task 004: Console Commands, Filament and Feature Tests
 
 ## Objective
 
