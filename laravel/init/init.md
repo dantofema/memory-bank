@@ -386,6 +386,19 @@ múltiples dominios o funcionalidades bien delimitadas.
 ./vendor/bin/sail composer require spatie/laravel-data
 ```
 
+### Laravel Pennant (Feature Flags)
+
+**Instalación**:
+
+```bash
+./vendor/bin/sail composer require laravel/pennant
+./vendor/bin/sail artisan vendor:publish --provider="Laravel\Pennant\PennantServiceProvider"
+./vendor/bin/sail artisan migrate
+```
+
+**Nota IA**: Pennant permite implementar feature flags para controlar la activación de funcionalidades en producción sin
+despliegues. Útil para A/B testing, rollouts graduales y activación/desactivación de features por usuario o equipo.
+
 ### Laravel Boost (MCP Server - Herramientas IA)
 
 ```bash
