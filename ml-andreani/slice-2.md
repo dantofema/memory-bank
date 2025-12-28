@@ -7,7 +7,8 @@
 
 ## Objetivo del Slice
 
-Implementar **gestión completa de usuarios** con registro, autenticación y sistema de roles para diferenciar customers de admins.
+Implementar **gestión completa de usuarios** con registro, autenticación y sistema de roles para diferenciar customers
+de admins.
 Este slice **habilita fidelización** y prepara la base para dashboards personalizados y gestión de órdenes por usuario.
 
 ---
@@ -70,7 +71,6 @@ Extender modelo User con relaciones y métodos necesarios.
 - Crear métodos helper: `isAdmin()`, `isCustomer()`
 - Definir fillable y hidden correctamente
 - Factory actualizado con datos faker argentinos
-- Casts para role (enum)
 
 **DoD**
 
@@ -99,8 +99,9 @@ Pantalla de registro con validación completa.
 
 **Tareas**
 
-- Crear ruta `/register`
-- Componente Livewire para registro
+- Habilitar registration en en panel de Filament
+- Crear una Page para el registro `sail php artisan make:filament-page Register`
+- Actualizar el Panel de Filament para permitir custom page `->registration(Register::class)`
 - Validación: email único, password (min 8 chars), phone format argentino
 - Campos: name, email, password, password_confirmation, phone
 - Role asignado automáticamente como `customer`
@@ -122,8 +123,6 @@ Pantalla de registro con validación completa.
 **Seguridad**
 
 - Password hasheado con bcrypt
-- CSRF protection activo
-- Rate limiting: 5 intentos por hora por IP
 - Validación server-side estricta
 
 ---
@@ -135,12 +134,9 @@ Pantalla de login con autenticación Laravel nativa.
 
 **Tareas**
 
-- Crear ruta `/login`
-- Componente Livewire para login
-- Validación de credenciales
+- Habilitar login en panel de Filament
 - Remember me funcional
-- Mensajes de error claros (sin revelar si email existe)
-- Redirect diferenciado por rol (admin → Filament, customer → dashboard)
+- Redirect diferenciado por rol (admin → AdminPanel, customer → CustomerPanel)
 
 **DoD**
 
@@ -171,9 +167,6 @@ Funcionalidad de cierre de sesión seguro.
 
 **Tareas**
 
-- Crear ruta POST `/logout`
-- Invalidar sesión correctamente
-- Regenerar token CSRF
 - Redirect a home o login
 
 **DoD**
@@ -633,4 +626,6 @@ Al finalizar este slice:
 
 ## Próximo slice recomendado
 
-**Slice 2B — Panel Customer (FilamentPHP)** para dar a los customers un dashboard profesional con métricas y gestión de sus datos, o **Slice 3 — Logística Andreani** para agregar cálculo de envíos si se prioriza completar el checkout funcional.
+**Slice 2B — Panel Customer (FilamentPHP)** para dar a los customers un dashboard profesional con métricas y gestión de
+sus datos, o **Slice 3 — Logística Andreani** para agregar cálculo de envíos si se prioriza completar el checkout
+funcional.
