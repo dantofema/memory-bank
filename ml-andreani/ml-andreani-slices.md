@@ -71,7 +71,7 @@ Si alguna no aplica, se ajusta el orden, no la estrategia.
 
 ---
 
-## Slice 2 — Usuarios reales
+## Slice 2 — Usuarios reales (Auth básica)
 
 **Caso de uso**
 > Usuario se registra, compra y ve su historial.
@@ -79,6 +79,7 @@ Si alguna no aplica, se ajusta el orden, no la estrategia.
 **Incluye**
 
 - Registro / login
+- Sistema de roles (admin/customer)
 - Órdenes asociadas a usuario
 - Perfil mínimo
 
@@ -86,6 +87,39 @@ Si alguna no aplica, se ajusta el orden, no la estrategia.
 
 - Fidelización
 - Base para postventa
+- Preparación para dashboards diferenciados
+
+**Fuera de scope**
+
+- Panel Filament para customers (ver Slice 2B)
+- Dashboard personalizado
+
+---
+
+## Slice 2B — Panel Customer (FilamentPHP)
+
+**Caso de uso**
+> Usuario con rol customer accede a su dashboard personalizado en Filament.
+
+**Incluye**
+
+- Panel Filament exclusivo para customers
+- Dashboard con métricas personales (órdenes, compras)
+- Vista de historial de órdenes propias
+- Perfil editable
+- Políticas de acceso por rol (customer ≠ admin)
+
+**Valor**
+
+- Experiencia diferenciada por rol
+- Self-service para customers
+- Reduce carga de soporte
+
+**Seguridad**
+
+- Policy estricta: customer solo ve sus datos
+- Navegación aislada de panel admin
+- Validación de permisos en todas las vistas
 
 ---
 
@@ -202,6 +236,8 @@ Si alguna no aplica, se ajusta el orden, no la estrategia.
 ## Dependencias críticas (mapa rápido)
 
 - Slice 1 ← Slice 0
+- Slice 2 ← Slice 1
+- Slice 2B ← Slice 2 + Slice 4 (requiere roles y panel Filament)
 - Slice 3 ← Slice 1
 - Slice 5 ← Slice 4
 - Slice 6 ← Slice 5
