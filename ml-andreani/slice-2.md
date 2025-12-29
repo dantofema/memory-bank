@@ -100,7 +100,7 @@ Pantalla de registro con validación completa.
 **Tareas**
 
 - Crear una Page para el registro `sail php artisan make:filament-page Register --panel=customer`
-- Actualizar el Panel de Filament para permitir custom page `->registration(Register::class)`
+- Actualizar el Panel Customer de Filament para permitir custom page `->registration(Register::class)`
 - Validación: email único, password (min 8 chars), phone format argentino
 - Campos: name, email, password, password_confirmation, phone
 - Role asignado automáticamente como `customer`
@@ -110,7 +110,7 @@ Pantalla de registro con validación completa.
 
 - Formulario valida correctamente
 - Usuario creado con role customer
-- Redirect post-registro a dashboard o home
+- Redirect post-registro a dashboard de CustomerPanelProvider
 - Tests de validación completos
 
 **Fuera de scope**
@@ -129,7 +129,7 @@ Pantalla de registro con validación completa.
 ### 2.4 Login de usuario
 
 **Descripción**
-Pantalla de login con autenticación Filament nativa.
+Pantalla de login al Panel de customer con autenticación Filament nativa.
 
 **Tareas**
 
@@ -158,7 +158,7 @@ Pantalla de login con autenticación Filament nativa.
 ### 2.5 Logout
 
 **Descripción**
-Funcionalidad de cierre de sesión seguro.
+Funcionalidad de cierre de sesión seguro para el Panel de customer nativa de Filament.
 
 **Tareas**
 
@@ -214,9 +214,10 @@ Asociar órdenes existentes y nuevas a usuarios.
 
 **Tareas**
 
-- Migración: modificar `orders.user_id` de nullable a required (sin strategy para data existente)
+- Migración: modificar `orders.user_id` de nullable a required (con strategy para data existente)
 - Actualizar checkout para asignar user_id automáticamente
 - Listener que asigna user autenticado a orden
+- Migrar órdenes guest existentes (si aplica)
 
 **DoD**
 
@@ -243,7 +244,7 @@ Pantalla donde usuario ve sus compras pasadas.
 
 **Tareas**
 
-- Crear Resource `sail php artisan make:filament-resource OrderResource --panel=customer
+- Crear Resource `sail php artisan make:filament-resorce OrderResource --panel=customer
 - Mostrar: número de orden, fecha, total, estado
 - Link a detalle de cada orden
 - Ordenar por fecha descendente
@@ -272,11 +273,11 @@ Pantalla donde usuario ve sus compras pasadas.
 ### 2.9 Detalle de orden
 
 **Descripción**
-Página de detalle de una orden específica.
+ViewRecord de detalle de una orden específica.
 
 **Tareas**
 
-- Vista con: items, cantidades, precios, total, estado, fecha
+- Vista de `sail php artisan make:filament-page ViewUser --resource=UserResource --type=ViewRecord --panel=customer` con: items, cantidades, precios, total, estado, fecha
 - Validar que usuario solo vea sus órdenes
 - Breadcrumb navegable
 
@@ -301,7 +302,7 @@ Página de detalle de una orden específica.
 ### 2.10 Perfil de usuario editable
 
 **Descripción**
-Pantalla donde usuario actualiza sus datos.
+Page Filament de perfil de usuario editable.
 
 **Tareas**
 
