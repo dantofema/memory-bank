@@ -214,10 +214,9 @@ Asociar órdenes existentes y nuevas a usuarios.
 
 **Tareas**
 
-- Migración: modificar `orders.user_id` de nullable a required (con strategy para data existente)
+- Migración: modificar `orders.user_id` de nullable a required (sin strategy para data existente)
 - Actualizar checkout para asignar user_id automáticamente
 - Listener que asigna user autenticado a orden
-- Migrar órdenes guest existentes (si aplica)
 
 **DoD**
 
@@ -244,7 +243,7 @@ Pantalla donde usuario ve sus compras pasadas.
 
 **Tareas**
 
-- Crear Resource `sail php artisan make:filament-resorce OrderResource --panel=customer
+- Crear Resource `sail php artisan make:filament-resource OrderResource --panel=customer
 - Mostrar: número de orden, fecha, total, estado
 - Link a detalle de cada orden
 - Ordenar por fecha descendente
