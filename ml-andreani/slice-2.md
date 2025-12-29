@@ -99,8 +99,7 @@ Pantalla de registro con validación completa.
 
 **Tareas**
 
-- Habilitar registration en en panel de Filament
-- Crear una Page para el registro `sail php artisan make:filament-page Register`
+- Crear una Page para el registro `sail php artisan make:filament-page Register --panel=customer`
 - Actualizar el Panel de Filament para permitir custom page `->registration(Register::class)`
 - Validación: email único, password (min 8 chars), phone format argentino
 - Campos: name, email, password, password_confirmation, phone
@@ -130,13 +129,12 @@ Pantalla de registro con validación completa.
 ### 2.4 Login de usuario
 
 **Descripción**
-Pantalla de login con autenticación Laravel nativa.
+Pantalla de login con autenticación Filament nativa.
 
 **Tareas**
 
-- Habilitar login en panel de Filament
 - Remember me funcional
-- Redirect diferenciado por rol (admin → AdminPanel, customer → CustomerPanel)
+- Redirect diferenciado por rol (admin → AdminPanelProvider, customer → CustomerPanelProvider)
 
 **DoD**
 
@@ -153,10 +151,7 @@ Pantalla de login con autenticación Laravel nativa.
 
 **Seguridad**
 
-- Throttling: 5 intentos por minuto
 - Logs de intentos fallidos
-- No revelar si usuario existe
-- Session secure (httponly, samesite)
 
 ---
 
@@ -167,11 +162,10 @@ Funcionalidad de cierre de sesión seguro.
 
 **Tareas**
 
-- Redirect a home o login
+- Redirect a home
 
 **DoD**
 
-- Sesión destruida completamente
 - No acceso a rutas protegidas post-logout
 - Tests funcionales
 
@@ -179,7 +173,6 @@ Funcionalidad de cierre de sesión seguro.
 
 - POST only (no GET)
 - CSRF token validado
-- Invalidar todas las sesiones del usuario
 
 ---
 
@@ -190,10 +183,7 @@ Implementar roles mediante enum nativo de PHP/Laravel.
 
 **Tareas**
 
-- Crear enum `UserRole` con valores: `ADMIN`, `CUSTOMER`
 - Cast en modelo User
-- Middleware `role:admin` y `role:customer`
-- Gates para verificación: `Gate::define('isAdmin')`
 - Seeders con usuario admin de prueba
 
 **DoD**
@@ -254,8 +244,7 @@ Pantalla donde usuario ve sus compras pasadas.
 
 **Tareas**
 
-- Crear ruta `/my-orders`
-- Componente Livewire con listado paginado
+- Crear Resource `sail php artisan make:filament-resorce OrderResource --panel=customer
 - Mostrar: número de orden, fecha, total, estado
 - Link a detalle de cada orden
 - Ordenar por fecha descendente
@@ -288,7 +277,6 @@ Página de detalle de una orden específica.
 
 **Tareas**
 
-- Crear ruta `/orders/{order}`
 - Vista con: items, cantidades, precios, total, estado, fecha
 - Validar que usuario solo vea sus órdenes
 - Breadcrumb navegable
@@ -307,7 +295,6 @@ Página de detalle de una orden específica.
 
 **Seguridad**
 
-- Policy `OrderPolicy::view()`
 - 404 si no es dueño (no 403 para no revelar existencia)
 
 ---
