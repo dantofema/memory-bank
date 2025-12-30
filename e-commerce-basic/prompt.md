@@ -6,7 +6,7 @@ Actuá como Arquitecto de Software senior, con enfoque en diseño de productos d
 
 ## Objetivo
 
-Generar el artefacto `project-definition.md` para un proyecto de tienda online, claro, conciso y apto para iniciar desarrollo sin ambigüedades.
+Generar en esta carpeta el artefacto `project-definition.md` para un proyecto de tienda online, claro, conciso y apto para iniciar desarrollo sin ambigüedades. Utilizando como guia el archivo `proceso-de-desarrollo-lean-vsf.md`.
 
 ## Contexto Funcional del Sistema
 
@@ -17,20 +17,15 @@ El sistema es una tienda online B2C.
 Los usuarios (customers) pueden:
 
 - Ver productos públicos
-- Registrarse
-- Navegar productos por categorías
+- Filtrar productos por categorías
 - Agregar productos a un carrito
-- Realizar un pedido únicamente si tienen una cuenta activa
-- Acceder a un panel privado con:
-  - Listado y detalle de sus pedidos
-  - Gestión de su perfil
-  - Dashboard con información básica
+- Realizar un pedido
 
-Para completar un pedido, el customer debe cargar o tener cargado:
+Para completar un pedido, el customer debe cargar:
 
 - Dirección de entrega
 - Localidad
-- Teléfono y datos de contacto
+- Teléfono
 
 ### Administrador (Admin)
 
@@ -72,6 +67,7 @@ La entrega y la forma de pago se coordinan manualmente:
 - Cuando un customer crea un pedido, el sistema envía automáticamente un mensaje de WhatsApp al admin
 - El mensaje debe contener información clave del pedido:
   - Número de pedido
+  - Descripción de los productos y cantidades
   - Nombre del customer
   - Total del pedido
   - Link directo al detalle del pedido en el panel admin
