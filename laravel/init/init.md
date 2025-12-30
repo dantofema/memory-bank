@@ -27,6 +27,8 @@ composer require laravel/sail --dev
 php artisan sail:install
 ./vendor/bin/sail up -d
 ./vendor/bin/sail npm install
+
+./vendor/bin/sail composer require flowframe/laravel-trend
 ```
 
 ### 2. Habilitar Xdebug (opcional pero recomendado)
@@ -35,6 +37,8 @@ php artisan sail:install
 
 ```bash
 SAIL_XDEBUG_MODE=develop,debug
+WWWGROUP=1000
+WWWUSER=1000
 ```
 
 **Reiniciar contenedores para aplicar cambios**:
@@ -209,7 +213,7 @@ usuarios gestionar su cuenta. El Environment Indicator previene errores al ident
 ./vendor/bin/sail composer require pxlrbt/filament-environment-indicator
 ```
 
-**Documentación**: https://filamentphp.com/plugins/pxlrbt-environment-indicator
+**Documentación**: <https://filamentphp.com/plugins/pxlrbt-environment-indicator>
 
 ---
 
@@ -247,19 +251,15 @@ arch()
     ->toImplement(Wireable::class);
 
 arch()
-    ->expect('App\Models')
-    ->toHaveLineCountLessThan(100);
-
-arch()
     ->expect('App')
     ->toHaveLineCountLessThan(300)
     ->ignoring(['App\Providers', 'App\Models']);
 
 arch()->preset()->php();
 
-arch()->preset()->strict()->ignoring('App\Filament');
+//arch()->preset()->strict()->ignoring('App\Filament');
 
-arch()->preset()->laravel();
+//arch()->preset()->laravel();
 ```
 
 **Ejecución**:
@@ -275,6 +275,9 @@ arch()->preset()->laravel();
 **Instalación**:
 
 ```bash
+./vendor/bin/sail composer require pestphp/pest-plugin-faker --dev
+./vendor/bin/sail composer require pestphp/pest-plugin-laravel --dev
+./vendor/bin/sail composer require pestphp/pest-plugin-livewire --dev
 ./vendor/bin/sail composer require pestphp/pest-plugin-browser --dev
 ./vendor/bin/sail npm install playwright@latest
 ./vendor/bin/sail npx playwright install
