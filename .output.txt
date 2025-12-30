@@ -1,0 +1,591 @@
+
+   FAIL  Tests\Unit\CartTest
+  ⨯ it can add products to the cart
+  ⨯ it can update product quantity
+  ⨯ it can remove products from the cart
+  ⨯ it calculates the total correctly
+   PASS  Tests\Unit\ExampleTest
+  ✓ that true is true
+   FAIL  Tests\Feature\ArchTest
+  ⨯ expect 'App\Enums' → toBeEnums
+  ⨯ expect 'App\Models' → toBeClasses → toExtend 'Illuminate\Database\Eloquent\Model' → ignoring 'App\Models\User'
+  ⨯ expect 'App\Http' → toOnlyBeUsedIn 'App\Http'
+  ⨯ preset → security → ignoring 'md5'
+  ⨯ expect 'App\ValueObjects' → toImplement 'Livewire\Wireable'
+  ⨯ expect 'App' → toHaveLineCountLessThan 300 → ignoring ['App\Providers', 'App\Models']
+  ⨯ preset → php
+   FAIL  Tests\Feature\CheckoutTest
+  ⨯ guest can see the checkout page with items in cart
+  ⨯ guest is redirected to catalog if cart is empty when visiting checkout
+  ⨯ guest can place an order
+  ⨯ checkout requires mandatory fields
+   FAIL  Tests\Feature\ExampleTest
+  ⨯ returns a successful response
+   FAIL  Tests\Feature\Filament\DashboardTest
+  ⨯ can render dashboard and see stats
+   FAIL  Tests\Feature\Filament\OrderResourceTest
+  ⨯ can render orders page
+  ⨯ can list orders
+   FAIL  Tests\Feature\Livewire\CatalogTest
+  ⨯ it renders the catalog page
+  ⨯ it shows active products
+  ⨯ it filters products by category
+  ⨯ it shows a message when a category has no products
+  ⨯ it displays formatted prices
+   FAIL  Tests\Feature\Livewire\SearchAndPaginationTest
+  ⨯ it filters products by search term
+  ⨯ it filters products by search term and category
+  ⨯ it shows a message when no products match the search
+  ⨯ it paginates products
+  ⨯ it persists search and page in query string
+   FAIL  Tests\Feature\OrderNotificationTest
+  ⨯ event OrderCreated is dispatched when order is created
+  ⨯ order number is generated automatically
+  ⨯ NotifyAdminOfNewOrder listener generates wa.me link in logs
+  ⨯ NotifyAdminOfNewOrder sends automatic whatsapp if apikey is present
+   FAIL  Tests\Feature\SettingsTest
+  ⨯ settings can be accessed via helper
+  ⨯ catalog header shows store name from settings
+  ⨯ settings cache is cleared when updated
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Unit\CartTest > it can add products to the…   QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Unit\CartTest > it can update product quant…  QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Unit\CartTest > it can remove products from…  QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Unit\CartTest > it calculates the total cor…  QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\ArchTest > expect 'App\Enums' → toB…  QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\ArchTest > expect 'App\Models' → to…  QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\ArchTest > expect 'App\Http' → toOn…  QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\ArchTest > preset → security → igno…  QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\ArchTest > expect 'App\ValueObjects…  QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\ArchTest > expect 'App' → toHaveLin…  QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\ArchTest > preset → php               QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\CheckoutTest > guest can see the ch…  QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\CheckoutTest > guest is redirected…   QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\CheckoutTest > guest can place an o…  QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\CheckoutTest > checkout requires ma…  QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\ExampleTest > returns a successful…   QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Filament\DashboardTest > can render…  QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Filament\OrderResourceTest > can re…  QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Filament\OrderResourceTest > can li…  QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Livewire\CatalogTest > it renders t…  QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Livewire\CatalogTest > it shows act…  QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Livewire\CatalogTest > it filters p…  QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Livewire\CatalogTest > it shows a m…  QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Livewire\CatalogTest > it displays…   QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Livewire\SearchAndPaginationTest >…   QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Livewire\SearchAndPaginationTest >…   QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Livewire\SearchAndPaginationTest >…   QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Livewire\SearchAndPaginationTest >…   QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Livewire\SearchAndPaginationTest >…   QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\OrderNotificationTest > event Order…  QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\OrderNotificationTest > order numbe…  QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\OrderNotificationTest > NotifyAdmin…  QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\OrderNotificationTest > NotifyAdmin…  QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\SettingsTest > settings can be acce…  QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\SettingsTest > catalog header shows…  QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\SettingsTest > settings cache is cl…  QueryException
+  SQLSTATE[HY000]: General error: 1 error in index orders_public_reference_unique after drop column: no such column: public_reference (Connection: sqlite, SQL: alter table "orders" drop column "public_reference")
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:570
+    566▕             $this->bindValues($statement, $this->prepareBindings($bindings));
+    567▕
+    568▕             $this->recordsHaveBeenModified();
+    569▕
+  ➜ 570▕             return $statement->execute();
+    571▕         });
+    572▕     }
+    573▕
+    574▕     /**
+      +8 vendor frames
+  9   database/migrations/2025_12_30_204652_remove_public_reference_from_orders_table.php:14
+  Tests:    36 failed, 1 passed (1 assertions)
+  Duration: 0.80s
