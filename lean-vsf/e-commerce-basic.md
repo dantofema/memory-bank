@@ -24,6 +24,7 @@ Los usuarios (customers) pueden:
 - Acceder a un panel privado con:
   - Listado y detalle de sus pedidos
   - Gestión de su perfil
+  - Dashboard con información básica
 
 Para completar un pedido, el customer debe cargar o tener cargado:
 
