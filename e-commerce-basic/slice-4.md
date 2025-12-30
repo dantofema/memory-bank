@@ -78,6 +78,7 @@ Then el sistema actualiza el registro y persiste el nuevo estado.
 - Listado: Uso de `Tables\Columns\BadgeColumn` para visualizar estados de forma clara (colores).
 - Detalle: Uso de `RelationManager` o `RepeatableEntry` para mostrar los `OrderItems` asociados dentro de la vista del pedido.
 - Acciones: Los cambios de estado pueden hacerse mediante el formulario de edición estándar o mediante "Actions" rápidas en el listado.
+- Utilizar siempre sail para el entorno de desarrollo, siempre `./vendor/bin/sail {command}`
 
 ---
 
