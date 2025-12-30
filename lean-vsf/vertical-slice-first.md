@@ -91,30 +91,7 @@ Si falta uno → **no es un slice**, es trabajo parcial.
 
 ---
 
-## 6. Estructura técnica de un slice (Laravel)
-
-```
-
-app/
-    └─ Casts/
-    ├─ Actions/
-    ├─ Contracts/
-    ├─ Events/
-    ├─ Http/
-    │   └─ Livewire/
-    │   └─ Filament/
-    │   └─ Controllers/
-    │       └─ API/
-    │           └─ V1/
-    ├─ Models/
-    ├─ Policies/
-    ├─ ValueObjects/
-└─ tests/
-    └─ Feature/
-    ├─ Unit/
-    └─ Browser/
-
-```
+## 6. Límites claros del slice
 
 - Slice ≠ módulo gigante
 - Slice = **flujo completo y cerrado**
