@@ -65,10 +65,28 @@ La entrega y la forma de pago se coordinan manualmente:
 - El acuerdo de entrega y pago ocurre fuera del sistema
 - El admin refleja el resultado actualizando ambos estados del pedido
 
+#### Notificaciones
+
+**Notificación automática al crear pedido:**
+
+- Cuando un customer crea un pedido, el sistema envía automáticamente un mensaje de WhatsApp al admin
+- El mensaje debe contener información clave del pedido:
+  - Número de pedido
+  - Nombre del customer
+  - Total del pedido
+  - Link directo al detalle del pedido en el panel admin
+
+**Implementación:**
+
+- Usar API de WhatsApp (ej: Twilio, Ultramsg, o similar)
+- El número de WhatsApp del admin se configura en variables de entorno
+- La notificación se envía de forma asíncrona (cola/job) para no bloquear la creación del pedido
+- Si falla el envío, el pedido se crea igual (la notificación no es crítica)
+
 
 ## Restricciones Explícitas
 
 - No se maneja stock
 - No hay pagos integrados
 - No hay envíos automatizados
-- No hay integraciones externas
+- No hay integración de WhatsApp Business (se usa API de terceros para notificaciones)
