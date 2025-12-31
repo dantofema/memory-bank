@@ -27,8 +27,8 @@ Valor: El cliente localiza productos rápidamente y navega eficientemente por el
 Slice 8 — URLs Amigables (Slugs)
 Valor: Mejora la legibilidad de enlaces compartidos y el SEO del sitio.
 
-Slice 9 — Galería de Imágenes
-Valor: El cliente puede ver múltiples imágenes de un producto para una mejor decisión de compra.
+Slice 9 — Página de Producto y Cantidad
+Valor: El cliente puede ver el detalle extendido de un producto y elegir la cantidad específica para agregar al carrito.
 
 Slice 10 — Confirmación y Envío por WhatsApp
 Valor: El cliente confirma el pedido en el checkout y envía automáticamente el detalle por WhatsApp al administrador.

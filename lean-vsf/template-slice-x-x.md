@@ -1,12 +1,12 @@
 ### Qué y por qué
 
-El `slice-X.md` es el **contrato previo al código**: define comportamiento, límites y decisiones mínimas. Bien hecho, elimina ambigüedad, reduce retrabajo y permite codear sin frenar por decisiones abiertas.
+El `slice-{number}-{name}.md` es el **contrato previo al código**: define comportamiento, límites y decisiones mínimas. Bien hecho, elimina ambigüedad, reduce retrabajo y permite codear sin frenar por decisiones abiertas.
 
 Abajo tenés un **template cerrado**, listo para copiar/pegar. Incluye **límites claros** y **seguridad explícita**.
 
 ---
 
-## Template `slice-X.md`
+## Template `slice-{number}-{name}.md`
 
 ```md
 # Slice X — <Nombre del slice>
