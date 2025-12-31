@@ -29,3 +29,6 @@ Valor: Mejora la legibilidad de enlaces compartidos y el SEO del sitio.
 
 Slice 9 — Galería de Imágenes
 Valor: El cliente puede ver múltiples imágenes de un producto para una mejor decisión de compra.
+
+Slice 10 — Confirmación y Envío por WhatsApp
+Valor: El cliente confirma el pedido en el checkout y envía automáticamente el detalle por WhatsApp al administrador.

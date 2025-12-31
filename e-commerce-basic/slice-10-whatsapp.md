@@ -1,194 +1,88 @@
-# Slice — Envío de pedido por WhatsApp (Customer → Admin)
+# Slice 10 — Confirmación y Envío por WhatsApp (Checkout)
 
 ## 1. Contexto
 
-Cuando un customer **no autenticado** confirma una orden (checkout como invitado), el administrador debe ser notificado por WhatsApp y poder continuar la conversación directamente con ese customer.
+Cuando un customer confirma una orden en el checkout, el sistema debe persistir el pedido en la base de datos y, simultáneamente, facilitar que el customer envíe el detalle por WhatsApp al administrador para cerrar la venta.
 
 Restricción clave del dominio:
-
-* WhatsApp **solo permite conversaciones libres si el mensaje es enviado por un usuario real**.
-
-Por lo tanto, el sistema **no envía el mensaje automáticamente**, sino que **prepara el mensaje y el link** para que el customer lo envíe desde su propio WhatsApp.
-
-No existe sesión autenticada ni usuario persistido para el customer.
+* El sistema **no envía el mensaje automáticamente** (debido a inestabilidad de APIs externas y costos), sino que **prepara el mensaje y el link** para que el customer lo envíe desde su propio WhatsApp al hacer clic en "Confirmar".
 
 ---
 
 ## 2. Objetivo del slice
 
-Permitir que, al confirmar una orden:
-
-* el sistema genere un mensaje con los datos del pedido
-* el customer lo envíe por WhatsApp al administrador
-* el admin reciba el mensaje y continúe la conversación
-
-Valor entregado:
-
-> El admin recibe pedidos por WhatsApp con contexto completo y puede responder sin fricción.
+Integrar la acción de "Confirmar Pedido" con la apertura de WhatsApp:
+1. Validar y guardar la orden en la BD.
+2. Generar un mensaje detallado con los productos y datos de contacto.
+3. Abrir WhatsApp en una nueva pestaña con el mensaje prellenado.
+4. Redirigir la ventana principal a la página de éxito (`order-success`).
 
 ---
 
 ## 3. Vertical Slice Definition
 
-**Slice name:** Enviar pedido por WhatsApp (guest checkout)
-
-**Actor principal:** Customer no autenticado
-
+**Slice name:** Confirmar y enviar por WhatsApp (Checkout)
+**Actor principal:** Customer (Anónimo)
 **Actor secundario:** Administrador
-
-**Inicio:** Orden creada correctamente con datos del customer
-
-**Fin:** Mensaje enviado por WhatsApp desde el teléfono del customer
+**Inicio:** Clic en el botón "Confirmar Pedido" en el formulario de Checkout.
+**Fin:** Orden persistida, WhatsApp abierto con mensaje y redirección a página de éxito.
 
 ---
 
 ## 4. Expected Behavior (Given / When / Then)
 
 ### Caso feliz
-
-- Given un customer no autenticado
-- And completa un formulario de pedido válido
-- When el sistema muestra la confirmación del pedido
-- Then se muestra un botón "Enviar pedido por WhatsApp"
-
-
-- When el customer hace click en el botón
-- Then se abre WhatsApp con un mensaje prellenado
-- And el mensaje contiene datos del pedido y datos de contacto del customer
-
----
-
-### Errores / validaciones
-
-- Given una orden inexistente
-- Then se retorna 404
-
-
-- Given la creación de la orden falla
-- Then no se muestra la opción de WhatsApp
+- **Given** un customer con productos en el carrito.
+- **And** completa el formulario de checkout con datos válidos.
+- **When** hace clic en el botón de confirmación.
+- **Then** se crea el registro en las tablas `orders` y `order_items`.
+- **And** se limpia el carrito de compras.
+- **And** se abre una nueva pestaña con la URL `wa.me` prellenada.
+- **And** la pestaña original se redirige a `/order-success/{order_number}`.
 
 ---
 
 ## 5. Contenido del mensaje
 
-Formato sugerido:
+Formato requerido:
+```text
+Hola, acabo de realizar un pedido:
 
-```
-Hola, acabo de realizar un pedido.
-
-
-Nombre: {customer_name}
-Dirección: {customer_address}
-Localidad: {customer_city}
+Pedido: #{order_number}
+Cliente: {customer_name}
+Dirección: {customer_address}, {customer_city}
 Teléfono: {customer_phone}
 
 Productos:
-- {product_1_name} x {quantity} = {subtotal}
-- {product_2_name} x {quantity} = {subtotal}
-... (lista completa)
+- {product_name} x {quantity} (${subtotal})
+...
 
-Total: {order_total}
-Pedido: #{order_id}
+Total: ${order_total}
 
 Gracias.
 ```
 
-Notas:
+---
 
-* Texto plano
-* Datos provienen del formulario de pedido
-* Sin links firmados
-* Sin datos sensibles (tokens, información de pago)
+## 6. Tech Notes
+
+### Configuración de Destino
+El número de destino se obtiene en este orden de prioridad:
+1. `settings('contact_whatsapp')` (Gestionado en Slice 6).
+2. `config('services.whatsapp.admin_phone')` (Fallback del `.env`).
+
+### Implementación en `checkout.blade.php`
+La lógica reside en la función `placeOrder` del componente Volt:
+- Se debe construir el string del mensaje iterando sobre `$this->cartItems`.
+- Se debe usar `urlencode()` para el contenido del mensaje.
+- El componente debe emitir un evento o devolver una instrucción para que el navegador abra la ventana de WhatsApp antes o durante la redirección.
 
 ---
 
-## 6. Tech Notes (Just in Time)
+## 7. Criterio de finalización
 
-### Configuración
-
-`.env`
-
-```
-WHATSAPP_ADMIN_PHONE=54911XXXXXXXX
-```
-
-`config/services.php`
-
-```
-'whatsapp' => [
-    'admin_phone' => env('WHATSAPP_ADMIN_PHONE'),
-],
-```
-
----
-
-### Servicio de dominio
-
-Responsabilidad:
-
-* Construir el mensaje
-* Generar el link `wa.me`
-
-Contrato implícito:
-
-* Input: Order válida
-* Output: URL externa a WhatsApp
-
----
-
-### UI / Livewire
-
-* Mostrar botón solo cuando se solicita confirmar la orden
-
----
-
-## 7. Seguridad
-
-* El número de WhatsApp del admin:
-
-    * nunca hardcodeado
-    * siempre desde `.env`
-
-* Validaciones obligatorias:
-
-    * campos requeridos del customer: nombre, dirección, localidad, teléfono
-    * teléfono normalizado (solo números)
-
-* La URL de WhatsApp:
-
-    * se genera **solo después** de persistir la orden
-
-* Logs:
-
-    * no loguear contenido completo del mensaje
-    * no loguear teléfonos
-
----
-
-## 8. No incluido en este slice
-
-* WhatsApp Business API
-* Envío automático desde backend
-* Templates aprobados por Meta
-* Historial de conversaciones
-
-Estos puntos quedan fuera por costo y complejidad.
-
----
-
-## 9. Criterio de finalización
-
-El slice se considera terminado cuando:
-
-* la orden se crea correctamente
-* el customer puede enviar el pedido por WhatsApp
-* el admin recibe el mensaje con contexto suficiente
-* el flujo puede demo-earse end-to-end
-
----
-
-## 10. Regla de oro
-
-> El sistema arma el contexto.
-> El customer inicia la conversación.
-> WhatsApp hace el resto.
+* La orden se guarda correctamente en la base de datos.
+* El carrito queda vacío tras la acción.
+* Se dispara la apertura de WhatsApp con el mensaje correcto.
+* El usuario llega a la página de éxito sin errores.
+* Se desactiva el envío automático (CallMeBot) si causaba conflictos.
