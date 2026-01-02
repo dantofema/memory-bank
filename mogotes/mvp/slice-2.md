@@ -17,7 +17,7 @@ estados trazables (`pending`, `sent`, `failed`).
 ## 3. Precondiciones
 
 - Slice 1 implementado (auth + contexto de proyecto).
-- Existe una cola disponible (database o Redis) y un worker ejecutándose.
+- Existe una cola disponible (Redis) y un worker ejecutándose.
 - Existe configuración SMTP válida para el entorno (si se prueba Email real).
 
 ---
