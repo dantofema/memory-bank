@@ -18,7 +18,7 @@ estados internos (`pending`, `paid`, `failed`) de forma idempotente.
 
 - Slice 1 implementado.
 - Existe configuración del provider por proyecto (tokens/credenciales) almacenada de forma segura.
-- Idealmente Slice 3 disponible para emitir `order.paid` como webhook saliente (opcional pero recomendado).
+- Idealmente Slice 3 disponible para emitir `order.paid` como webhook saliente.
 
 ---
 
@@ -34,7 +34,7 @@ When llama al webhook del BaaS
 Then el BaaS valida el webhook, actualiza la transacción de forma idempotente y normaliza el estado interno.
 
 Given que el estado pasa a `paid`
-Then el BaaS puede emitir un evento interno equivalente a `order.paid` para integraciones (si Slice 3 está presente).
+Then el BaaS puede emitir un evento interno equivalente a `order.paid` para integraciones.
 
 ---
 
