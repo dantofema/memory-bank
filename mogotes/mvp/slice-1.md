@@ -92,7 +92,7 @@ Then la key anterior queda inválida inmediatamente.
 ## 11. Decisiones técnicas mínimas (Just in Time)
 
 - Datos mínimos de `projects`: `name`, `domain`, `plan`, `is_active`, `api_key_hash`.
-- Alta de proyecto (MVP): comando Artisan o seeder.
+- Alta de proyecto (MVP): comando Artisan.
 - Contexto: middleware que agrega `project_id` al request.
 
 ---
