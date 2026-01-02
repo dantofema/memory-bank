@@ -1,6 +1,8 @@
 ### Qué y por qué
 
-Tu objetivo es correcto: **llegar al código con todo lo necesario decidido**, pero **sin sobre-documentar ni diseñar de más**. Con los archivos que pasaste, la forma más limpia es **reducir todo a 3 artefactos con límites muy estrictos** y un flujo fijo. Eso te da foco, velocidad y evita discusiones técnicas prematuras.
+Tu objetivo es correcto: **llegar al código con todo lo necesario decidido**, pero **sin sobre-documentar ni diseñar de
+más**. Con los archivos que pasaste, la forma más limpia es **reducir todo a 3 artefactos con límites muy estrictos** y
+un flujo fijo. Eso te da foco, velocidad y evita discusiones técnicas prematuras.
 
 ---
 
@@ -10,7 +12,7 @@ Tu objetivo es correcto: **llegar al código con todo lo necesario decidido**, p
 
 1. `project-definition.md`
 2. `slices.md`
-3. `slice-X.md` (uno por slice)
+3. `slice-x-x.md` (uno por slice)
 
 Nada más antes de codear.
 
@@ -86,24 +88,31 @@ Este es **el artefacto clave**. Todo lo que necesitás antes de abrir el editor 
 # Slice X — Nombre
 
 ## 1. Objetivo
+
 Qué valor entrega este slice.
 
 ## 2. Actores
+
 Quién interactúa.
 
 ## 3. Flujo principal (Given / When / Then)
+
 Comportamiento esperado.
 
 ## 4. Flujos alternativos / errores relevantes
+
 Solo los que importan.
 
 ## 5. Reglas de negocio
+
 Invariantes que no se pueden romper.
 
 ## 6. Límites explícitos
+
 Qué NO hace este slice.
 
 ## 7. Decisiones técnicas mínimas
+
 Solo lo que bloquea el código.
 ```
 

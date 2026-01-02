@@ -119,8 +119,10 @@ Capa de integración unificada para proveedores de pago.
 
 * id
 * name
+* domain
 * api_key_hash
 * plan
+* is_active
 * created_at
 
 ### notifications
@@ -154,7 +156,64 @@ Capa de integración unificada para proveedores de pago.
 
 ---
 
-## 7. Planes y monetización (preparado, no activo)
+## 7. Gestión de proyectos (Project Management)
+
+### 7.1 Alta de proyecto (tienda)
+
+**Objetivo**
+Permitir registrar una nueva tienda/e-commerce que consumirá el BaaS.
+
+**Forma (MVP)**
+
+* Alta manual vía:
+
+    * Seeder
+    * Comando Artisan
+    * Endpoint protegido (solo uso interno)
+
+**Datos mínimos**
+
+* Nombre del proyecto
+* Dominio principal (informativo / validación futura)
+* Plan inicial (`free`)
+
+---
+
+### 7.2 Generación de API Key
+
+**Flujo**
+
+1. Al crear el proyecto se genera una API Key aleatoria.
+2. La API Key se muestra **una sola vez**.
+3. Se almacena únicamente el **hash** en base de datos.
+
+**Uso**
+
+* Header: `X-API-KEY`
+* Resolución de contexto por proyecto.
+
+---
+
+### 7.3 Rotación y revocación
+
+* Regenerar API Key invalida la anterior.
+* Posibilidad de desactivar un proyecto (`is_active = false`).
+
+---
+
+### 7.4 Autorización
+
+* Cada request valida:
+
+    * API Key válida
+    * Proyecto activo
+* Scope implícito por proyecto (no cross-project access).
+
+---
+
+## 8. Planes y monetización (preparado, no activo)
+
+(preparado, no activo)
 
 * Planes: `free`, `pro`.
 * Feature flags por proyecto.
