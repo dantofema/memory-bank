@@ -182,7 +182,6 @@ return RectorConfig::configure()
 ./vendor/bin/sail composer require filament/filament:"^4.0"
 ./vendor/bin/sail artisan filament:install --panels
 ./vendor/bin/sail artisan icons:cache
-./vendor/bin/sail composer require filament/froms
 ```
 
 **Configuración del Panel**:
@@ -254,7 +253,7 @@ arch()
 arch()
     ->expect('App')
     ->toHaveLineCountLessThan(300)
-    ->ignoring(['App\Providers', 'App\Models']);
+    ->ignoring(['App\Providers']);
 
 arch()->preset()->php();
 
